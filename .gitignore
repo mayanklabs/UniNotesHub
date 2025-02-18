@@ -1,0 +1,50 @@
+# General system files
+.DS_Store
+Thumbs.db
+
+# Python-related ignores
+__pycache__/
+*.py[cod]
+*.swp
+.env
+*.sqlite3
+db.sqlite3
+
+# Virtual environment
+venv/
+env/
+*.egg-info/
+Pipfile
+Pipfile.lock
+
+# Django-specific
+/media/
+/staticfiles/
+*.log
+
+# PHP-related ignores
+/vendor/
+.env
+composer.lock
+
+# Laravel-specific
+node_modules/
+bootstrap/cache/
+storage/
+.env.example
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn.lock
+package-lock.json
+
+# VS Code & JetBrains
+.vscode/
+.idea/
+
+# Build and dependencies
+dist/
+build/
+public/
+temp/
