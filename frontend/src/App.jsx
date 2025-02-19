@@ -1,15 +1,47 @@
 import { useState } from 'react'
 import './App.css'
 import { Button } from './components/ui/button'
+import MainLyout from './layout/MainLyout'
+import { RouterProvider } from 'react-router'
+import Navbar from './components/Navbar'
+import EditProfile from './pages/Profile'
+import { createBrowserRouter } from 'react-router-dom'
+import Login from './pages/Login'
+import Hero from './pages/Hero'
+
+
+
+const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <MainLyout />,
+    children: [
+      {
+        path: "/",
+        element: (
+          <>
+          <Hero/>
+          </>
+        ),
+      },
+      {
+        path:"login",
+        element:<Login/>
+      },
+      {
+        path:"EditProfile",
+        element:<EditProfile/>
+      }
+    ],
+  },
+])
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-    <div>
-      <Button>Click me</Button>
-    </div>
+      <main>
+        <RouterProvider router={appRouter}/>
+      </main>
     </>
   )
 }
