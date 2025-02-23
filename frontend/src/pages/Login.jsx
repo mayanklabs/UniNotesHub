@@ -13,19 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 
 
-const Login = () => {
+
+const Login = () => { 
     const [signupInput, setSignupInput] = useState({
         name: "",
-        University:"",
-        Branch:"",
-        Year:"",
         email: "",
         password: "",
+        confirmpassword: "",
     });
     const [loginInput, setLoginInput] = useState({ email: "", password: "" });
-
-
-    //   const navigate = useNavigate();
 
     const changeInputHandler = (e, type) => {
         const { name, value } = e.target;
@@ -41,8 +37,6 @@ const Login = () => {
         const action = type === "signup" ? registerUser : loginUser;
         await action(inputData);
     };
-
-
 
     return (
         <div className="flex items-center w-full justify-center mt-20">
@@ -68,43 +62,7 @@ const Login = () => {
                                     value={signupInput.name}
                                     onChange={(e) => changeInputHandler(e, "signup")}
                                     placeholder="Eg. Jhon"
-                                    required="true"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label htmlFor="name">University</Label>
-                                <Input
-                                    type="text"
-                                    name="name"
-                                    value={signupInput.name}
-                                    onChange={(e) => changeInputHandler(e, "signup")}
-                                    placeholder="Eg. Sage University"
-                                    required="true"
-                                />
-                            </div>
-                            
-                            <div className="space-y-1">
-                                <Label htmlFor="name">Course</Label>
-                                <Input
-                                    type="text"
-                                    name="name"
-                                    value={signupInput.name}
-                                    onChange={(e) => changeInputHandler(e, "signup")}
-                                    placeholder="Eg. CSE"
-                                    required="true"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label htmlFor="username">Year</Label>
-                                <Input
-                                    type="email"
-                                    name="email"
-                                    value={signupInput.email}
-                                    onChange={(e) => changeInputHandler(e, "signup")}
-                                    placeholder="Eg. 3rd"
-                                    required="true"
+                                    required={true}
                                 />
                             </div>
                             <div className="space-y-1">
@@ -114,8 +72,8 @@ const Login = () => {
                                     name="email"
                                     value={signupInput.email}
                                     onChange={(e) => changeInputHandler(e, "signup")}
-                                    placeholder="Eg. xyz@gmail.com"
-                                    required="true"
+                                    placeholder="Eg. jhon@gmail.com"
+                                    required={true}
                                 />
                             </div>
                             <div className="space-y-1">
@@ -125,8 +83,19 @@ const Login = () => {
                                     name="password"
                                     value={signupInput.password}
                                     onChange={(e) => changeInputHandler(e, "signup")}
-                                    placeholder="Eg. xyz"
-                                    required="true"
+                                    placeholder="Password"
+                                    required={true}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="username">Confirm Password</Label>
+                                <Input
+                                    type="password"
+                                    name="confirmpassword"
+                                    value={signupInput.confirmpassword}
+                                    onChange={(e) => changeInputHandler(e, "signup")}
+                                    placeholder="Confirm Password"
+                                    required={true}
                                 />
                             </div>
                         </CardContent>
@@ -154,8 +123,8 @@ const Login = () => {
                                     name="email"
                                     value={loginInput.email}
                                     onChange={(e) => changeInputHandler(e, "login")}
-                                    placeholder="Eg. xyz@gmail.com"
-                                    required="true"
+                                    placeholder="Eg. jhon@gmail.com"
+                                    required={true}
                                 />
                             </div>
                             <div className="space-y-1">
@@ -165,8 +134,8 @@ const Login = () => {
                                     name="password"
                                     value={loginInput.password}
                                     onChange={(e) => changeInputHandler(e, "login")}
-                                    placeholder="Eg. xyz"
-                                    required="true"
+                                    placeholder="Password"
+                                    required={true}
                                 />
                             </div>
                         </CardContent>
