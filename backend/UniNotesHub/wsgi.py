@@ -1,5 +1,5 @@
 """
-WSGI config for pyqs project.
+WSGI config for UniNotesHub project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pyqs.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'UniNotesHub.settings')
 
 application = get_wsgi_application()

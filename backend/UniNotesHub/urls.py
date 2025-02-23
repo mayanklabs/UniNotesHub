@@ -1,0 +1,26 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.http import HttpResponse
+import os
+
+# Secure the admin URL
+ADMIN_URL = os.getenv("DJANGO_ADMIN_URL", "secureadmin/")
+
+
+# Simple homepage view
+def home(request):
+    return HttpResponse("Welcome to UniNotesHub!")
+
+
+urlpatterns = [
+    path(ADMIN_URL, admin.site.urls),
+    path('api/auth/', include('authentication.urls')),
+    path("", home, name="home"), 
+]
+
+# Serve static & media files in development mode
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # ✅ Serve media files
