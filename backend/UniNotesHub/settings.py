@@ -22,13 +22,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    'authentication'
+    'authentication',
+    'users',
 ]
 
-AUTH_USER_MODEL = 'authentication.User' 
+AUTH_USER_MODEL = 'authentication.User'
 
 
 MIDDLEWARE = [
@@ -110,15 +112,37 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
 ROOT_URLCONF = 'UniNotesHub.urls'
 
 
+# SimpleJWT Settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # Short expiry for better security
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Users stay logged in for a week
+    "ROTATE_REFRESH_TOKENS": True,  # Generate new refresh token on login
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "COOKIE_SECURE": True,  # Use Secure cookies (for production with HTTPS)
+    "COOKIE_HTTPONLY": True,  # Prevent JavaScript access
+    "COOKIE_SAMESITE": "Lax",  # Prevent CSRF issues
 }
+
+
+# for email
+
+
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")

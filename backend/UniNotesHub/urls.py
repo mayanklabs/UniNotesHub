@@ -16,11 +16,12 @@ def home(request):
 
 urlpatterns = [
     path(ADMIN_URL, admin.site.urls),
-    path('api/auth/', include('authentication.urls')),
+    path('api/', include('authentication.urls')),
+    path('api/users/', include('users.urls')),
     path("", home, name="home"), 
 ]
 
 # Serve static & media files in development mode
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # ✅ Serve media files
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  

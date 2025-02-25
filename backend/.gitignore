@@ -15,8 +15,6 @@ __pycache__/
 
 # Django-specific files
 db.sqlite3
-*/migrations/  # Ignore all migration files except __init__.py
-!*/migrations/__init__.py
 logs/
 *.log
 security.log
