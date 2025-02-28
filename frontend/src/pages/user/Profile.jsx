@@ -11,16 +11,33 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React, { useEffect, useState } from "react";
-
+import React from "react";
+import { useAuthStore } from "@/store/authStore";
 
 const Profile = () => {
-  const [name, setName] = useState("");
-  const [profilePhoto, setProfilePhoto] = useState("");
+  const {
+    user,
+    profileUpdate,
+    setProfileName,
+    setProfilePhoto,
+    resetProfileUpdate,
+    updateUserProfile,
+  } = useAuthStore();
 
   const onChangeHandler = (e) => {
     const file = e.target.files?.[0];
     if (file) setProfilePhoto(file);
+  };
+
+  const handleUpdate = () => {
+    const updatedData = {
+      name: profileUpdate.name || user?.name, 
+      profilePhoto: profileUpdate.profilePhoto
+        ? URL.createObjectURL(profileUpdate.profilePhoto) 
+        : user?.profilePhoto, 
+    };
+    updateUserProfile(updatedData); 
+    resetProfileUpdate(); 
   };
 
   return (
@@ -30,26 +47,26 @@ const Profile = () => {
         <div className="flex flex-col items-center">
           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
             <AvatarImage
-              src={"https://github.com/shadcn.png"}
-              alt="@shadcn"
+              src={user?.profilePhoto || "https://github.com/shadcn.png"} 
+              alt={user?.name || "@shadcn"}
             />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>
           </Avatar>
         </div>
         <div>
           <div className="mb-2">
-            <h1 className="font-semibold text-gray-900 dark:text-gray-100 ">
+            <h1 className="font-semibold text-gray-900 dark:text-gray-100">
               Name:
               <span className="font-normal text-gray-700 dark:text-gray-300 ml-2">
-                {/* {user.name} */}
+                {user?.name || "Not set"}
               </span>
             </h1>
           </div>
           <div className="mb-2">
-            <h1 className="font-semibold text-gray-900 dark:text-gray-100 ">
+            <h1 className="font-semibold text-gray-900 dark:text-gray-100">
               Email:
               <span className="font-normal text-gray-700 dark:text-gray-300 ml-2">
-                {/* {user.email} */}
+                {user?.email || "Not set"}
               </span>
             </h1>
           </div>
@@ -63,8 +80,7 @@ const Profile = () => {
               <DialogHeader>
                 <DialogTitle>Edit Profile</DialogTitle>
                 <DialogDescription>
-                  Make changes to your profile here. Click save when you're
-                  done.
+                  Make changes to your profile here. Click save when you're done.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -72,9 +88,9 @@ const Profile = () => {
                   <Label>Name</Label>
                   <Input
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name"
+                    value={profileUpdate.name}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    placeholder={user?.name || "Name"}
                     className="col-span-3"
                   />
                 </div>
@@ -89,9 +105,7 @@ const Profile = () => {
                 </div>
               </div>
               <DialogFooter>
-                <Button>
-                  Update
-                </Button>
+                <Button onClick={handleUpdate}>Update</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
