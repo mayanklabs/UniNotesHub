@@ -10,6 +10,7 @@ import Branch from './pages/university/Branch'
 import CourseName from './pages/university/CourseName'
 import ProgramName from './pages/university/ProgramName'
 import QuestionsList from './pages/university/QuestionsList'
+// import UploadForm from './pages/user/UploadForm'
 
 
 
@@ -29,7 +30,7 @@ const appRouter = createBrowserRouter([
         ),
       },
       {
-        path: "login/EditProfile",
+        path: "editProfile",
         element: <EditProfile />
       },
       {
@@ -48,9 +49,14 @@ const appRouter = createBrowserRouter([
         path: "questions",
         element: <QuestionsList />
       },
+
       
     ],
   },
+  // {
+  //   path: "upload",
+  //   element: <UploadForm />
+  // },
   {
       path: "login",
       element: <Login />
