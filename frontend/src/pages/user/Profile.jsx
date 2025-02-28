@@ -1,4 +1,3 @@
-// src/components/Profile.jsx
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React from "react";
-import { useAuthStore } from "@/store/authStore";// Adjust path as needed
+import { useAuthStore } from "@/store/authStore";
 
 const Profile = () => {
-  // Access Zustand store
   const {
     user,
     profileUpdate,
@@ -32,15 +30,14 @@ const Profile = () => {
   };
 
   const handleUpdate = () => {
-    // Simulate API call to update profile
     const updatedData = {
-      name: profileUpdate.name || user?.name, // Fallback to current name if not changed
+      name: profileUpdate.name || user?.name, 
       profilePhoto: profileUpdate.profilePhoto
-        ? URL.createObjectURL(profileUpdate.profilePhoto) // Convert file to URL for display
-        : user?.profilePhoto, // Fallback to current photo if not changed
+        ? URL.createObjectURL(profileUpdate.profilePhoto) 
+        : user?.profilePhoto, 
     };
-    updateUserProfile(updatedData); // Update global user state
-    resetProfileUpdate(); // Clear form
+    updateUserProfile(updatedData); 
+    resetProfileUpdate(); 
   };
 
   return (
@@ -50,7 +47,7 @@ const Profile = () => {
         <div className="flex flex-col items-center">
           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
             <AvatarImage
-              src={user?.profilePhoto || "https://github.com/shadcn.png"} // Use user photo or fallback
+              src={user?.profilePhoto || "https://github.com/shadcn.png"} 
               alt={user?.name || "@shadcn"}
             />
             <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>

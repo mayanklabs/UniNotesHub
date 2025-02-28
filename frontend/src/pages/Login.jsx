@@ -11,15 +11,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuthStore } from "../store/authStore"; // Adjust path as needed
+import { useAuthStore } from "../store/authStore"; 
 
 const Login = () => {
-  // Access Zustand store
   const {
     signupInput,
     loginInput,
     setSignupInput,
     setLoginInput,
+    resetSignupInput, 
+    resetLoginInput,  
   } = useAuthStore();
 
   const changeInputHandler = (e, type) => {
@@ -35,6 +36,8 @@ const Login = () => {
     const inputData = type === "signup" ? signupInput : loginInput;
     const action = type === "signup" ? registerUser : loginUser;
     await action(inputData);
+    if (type === "signup") resetSignupInput();
+    else resetLoginInput();
   };
 
   return (
@@ -58,7 +61,7 @@ const Login = () => {
                   name="name"
                   value={signupInput.name}
                   onChange={(e) => changeInputHandler(e, "signup")}
-                  placeholder="Your Name"
+                  placeholder="Eg. Jhon"
                   required={true}
                 />
               </div>
@@ -69,7 +72,7 @@ const Login = () => {
                   name="email"
                   value={signupInput.email}
                   onChange={(e) => changeInputHandler(e, "signup")}
-                  placeholder="Your E-mail"
+                  placeholder="Eg. jhon@gmail.com"
                   required={true}
                 />
               </div>
@@ -119,7 +122,7 @@ const Login = () => {
                   name="email"
                   value={loginInput.email}
                   onChange={(e) => changeInputHandler(e, "login")}
-                  placeholder="Your E-mail"
+                  placeholder="Eg. jhon@gmail.com"
                   required={true}
                 />
               </div>
