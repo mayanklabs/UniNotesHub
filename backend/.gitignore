@@ -1,0 +1,38 @@
+# Virtual Environment
+venv/
+.env
+.env.local
+venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Byte-compiled / Cache files
+*.pyc
+*.pyo
+__pycache__/
+*.swp
+*.swo
+
+# Django-specific files
+db.sqlite3
+logs/
+*.log
+security.log
+
+# Static & Media Files
+staticfiles/
+media/
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Git-related
+.git/
