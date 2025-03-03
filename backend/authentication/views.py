@@ -21,12 +21,12 @@ from rest_framework.permissions import IsAuthenticated
 User = get_user_model()
 
 
-# **🔹 Register User**
+# 🔹 Register User
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserRegistrationSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -57,7 +57,7 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# **🔹 Email Verification**
+# 🔹 Email Verification**
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
@@ -77,7 +77,7 @@ class VerifyEmailView(APIView):
             return Response({"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# **🔹 Login User**
+# 🔹 Login User
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -96,7 +96,8 @@ class LoginView(APIView):
                 "csrf_token": get_token(request)  # Include CSRF token in response
             }, status=200)
 
-            # Set secure cookies for authentication
+
+# Set secure cookies for authentication
             response.set_cookie(
                 key="access_token",
                 value=access_token,
@@ -129,7 +130,7 @@ class LoginView(APIView):
         return Response({"error": "Invalid email or password"}, status=401)
 
 
-# **🔹 CSRF Token Endpoint**
+# 🔹 CSRF Token Endpoint
 @api_view(["GET"])
 def get_csrf_token(request):
     """Returns a CSRF token in both JSON response and cookie."""

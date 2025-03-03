@@ -28,6 +28,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'authentication',
     'users',
+    'pyqs',
+    'universities'
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
@@ -66,8 +68,39 @@ SECURE_SSL_REDIRECT = os.getenv("DJANGO_SECURE_SSL_REDIRECT", "True").lower() in
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
+
 CORS_ALLOWED_ORIGINS = os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin]
+
+
+
+
+
+# Allow all methods (GET, POST, etc.)
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+]
+
+
+# Allow credentials (cookies, JWT tokens)
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow specific headers
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+    "accept",
+]
+
+
+
+
 
 
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
@@ -96,7 +129,7 @@ LOGGING = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # ✅ Ensure a templates directory is set
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,7 +148,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
 }
 
@@ -145,4 +178,4 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
