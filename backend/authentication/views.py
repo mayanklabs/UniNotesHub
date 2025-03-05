@@ -2,7 +2,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, get_user_model
 from django.core.mail import send_mail
@@ -10,35 +10,30 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from .serializers import UserRegistrationSerializer, UserProfileSerializer
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
-
+from .serializers import UserRegistrationSerializer, UserProfileSerializer
 
 User = get_user_model()
 
-
-# 🔹 Register User
+# Register User
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserRegistrationSerializer
 
-    def create(self, request, *args, kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             user.is_active = False  # Disable login until email verification
             user.save()
 
-            # Generate email verification token
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
 
-            # Send verification email
             try:
                 send_mail(
                     "Verify Your Email",
@@ -53,11 +48,9 @@ class RegisterView(generics.CreateAPIView):
 
             return Response({"message": "Registration successful. Check your email to verify your account."},
                             status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# 🔹 Email Verification**
+# Email Verification
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
@@ -72,12 +65,10 @@ class VerifyEmailView(APIView):
                 return Response({"message": "Email verified successfully!"}, status=status.HTTP_200_OK)
 
             return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
-
         except (ValueError, TypeError, OverflowError):
             return Response({"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-# 🔹 Login User
+# Login User
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -93,74 +84,31 @@ class LoginView(APIView):
             response = Response({
                 "user": UserProfileSerializer(user).data,
                 "message": "Login successful",
-                "csrf_token": get_token(request)  # Include CSRF token in response
+                "csrf_token": get_token(request)
             }, status=200)
 
-
-# Set secure cookies for authentication
-            response.set_cookie(
-                key="access_token",
-                value=access_token,
-                httponly=True,
-                secure=True,
-                samesite="Lax",
-                max_age=30 * 60
-            )
-            response.set_cookie(
-                key="refresh_token",
-                value=str(refresh),
-                httponly=True,
-                secure=True,
-                samesite="Lax",
-                max_age=7 * 24 * 60 * 60
-            )
-
-            # Set CSRF Token Cookie
-            response.set_cookie(
-                key="csrftoken",
-                value=get_token(request),
-                httponly=False,  # CSRF token should be accessible by JavaScript
-                secure=True,
-                samesite="Lax",
-                max_age=30 * 60
-            )
-
+            response.set_cookie("access_token", access_token, httponly=True, secure=True, samesite="Lax", max_age=1800)
+            response.set_cookie("refresh_token", str(refresh), httponly=True, secure=True, samesite="Lax", max_age=604800)
+            response.set_cookie("csrftoken", get_token(request), httponly=False, secure=True, samesite="Lax", max_age=1800)
             return response
-
         return Response({"error": "Invalid email or password"}, status=401)
 
-
-# 🔹 CSRF Token Endpoint
+# CSRF Token Endpoint
 @api_view(["GET"])
 def get_csrf_token(request):
-    """Returns a CSRF token in both JSON response and cookie."""
     csrf_token = get_token(request)
-
     response = JsonResponse({"csrfToken": csrf_token})
-    response.set_cookie(
-        key="csrftoken",
-        value=csrf_token,
-        httponly=False,
-        secure=True,
-        samesite="Lax",
-        max_age=30 * 60
-    )
+    response.set_cookie("csrftoken", csrf_token, httponly=False, secure=True, samesite="Lax", max_age=1800)
     return response
 
-
-# Logout
-
+# Logout User
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
-        
         if not refresh_token:
-            return Response({
-                "error": "No refresh token provided",
-                "cookies_received": request.COOKIES
-            }, status=400)
+            return Response({"error": "No refresh token provided"}, status=400)
 
         try:
             token = RefreshToken(refresh_token)

@@ -3,7 +3,7 @@ from .views import PYQListCreateView, UploadPYQView, UserPYQListView, EditDelete
 
 urlpatterns = [
     path('pyqs/', PYQListCreateView.as_view(), name='pyq-list-create'),
-    path('pyqs/upload/', UploadPYQView.as_view(), name='upload-pyq'),
+    path('pyqs/upload/', UploadPYQView.as_view(), name='pyqs_uploaded'),
     path('pyqs/myuploads/', UserPYQListView.as_view(), name='user-pyqs'),
     path('pyqs/<int:pk>/', EditDeletePYQView.as_view(), name='edit-delete-pyq'), 
     path(

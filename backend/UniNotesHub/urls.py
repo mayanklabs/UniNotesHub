@@ -17,6 +17,7 @@ def home(request):
 urlpatterns = [
     path(ADMIN_URL, admin.site.urls),
     path('api/', include('authentication.urls')),
+    path('api/', include('search.urls')),
     path('api/', include('users.urls')),
     path('api/', include('pyqs.urls')),
     path('api/', include('universities.urls')),

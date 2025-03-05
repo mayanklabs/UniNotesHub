@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'authentication',
     'users',
     'pyqs',
-    'universities'
+    'universities',
+    'search'
 ]
 
 AUTH_USER_MODEL = 'authentication.User'

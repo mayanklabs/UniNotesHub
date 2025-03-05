@@ -27,7 +27,7 @@ class PYQ(models.Model):
     year = models.CharField(max_length=4, choices=YEAR_CHOICES, default='2024')
     semester = models.CharField(max_length=1, choices=SEMESTER_CHOICES, default='1')
     file = models.FileField(upload_to='pyqs/')
-    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_pyqs")
+    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pyqs_uploaded")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -44,4 +44,4 @@ class PYQRating(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} rated {self.pyq.title} ({self.rating}⭐)"
+        return f"{self.user.name} rated {self.pyq.course.name} ({self.rating}⭐)"

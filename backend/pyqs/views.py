@@ -12,6 +12,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import PYQRating
 from .serializers import PYQRatingSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -32,14 +33,19 @@ class PYQListCreateView(generics.ListCreateAPIView):
 class UploadPYQView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # Handle file uploads
 
     def post(self, request):
+        print(f"Received Data: {request.data}")  # Debugging
+
         serializer = PYQSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(uploader=request.user)  # Fix field name
+            serializer.save(uploader=request.user)
+            print("Upload successful!")  # Debugging
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        print(f"Errors: {serializer.errors}")  # Debugging
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
