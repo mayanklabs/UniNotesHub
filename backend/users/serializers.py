@@ -25,8 +25,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             user.save()
 
         # Update UserProfile fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        profile_picture = validated_data.get('profile_picture', None)
+        if profile_picture is not None:  # Only update if a new image is provided
+            instance.profile_picture = profile_picture
         instance.save()
 
         return instance
