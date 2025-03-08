@@ -50,6 +50,7 @@ class RegisterView(generics.CreateAPIView):
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
@@ -65,6 +66,7 @@ class VerifyEmailView(APIView):
             return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
         except (ValueError, TypeError, OverflowError):
             return Response({"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -124,19 +126,14 @@ class LoginView(APIView):
 
         return Response({"error": {"password": "Incorrect password."}}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 @api_view(["GET"])
 def get_csrf_token(request):
     csrf_token = get_token(request)
     response = JsonResponse({"csrfToken": csrf_token})
-    response.set_cookie(
-        key="csrftoken",
-        value=csrf_token,
-        httponly=False,
-        secure=True,
-        samesite="Lax",
-        max_age=30 * 60
-    )
+    response.set_cookie("csrftoken", csrf_token, httponly=False, secure=True, samesite="Lax", max_age=1800)
     return response
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -145,6 +142,7 @@ class LogoutView(APIView):
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
             return Response({"error": "No refresh token provided"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
@@ -155,6 +153,7 @@ class LogoutView(APIView):
         response.delete_cookie("refresh_token")
         response.delete_cookie("csrftoken")
         return response
+
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]

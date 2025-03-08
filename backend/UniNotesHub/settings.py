@@ -27,6 +27,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'authentication',
     'users',
+    'pyqs',
+    'universities',
+    'search'
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
@@ -68,6 +71,36 @@ CSRF_COOKIE_SECURE = not DEBUG
 CORS_ALLOWED_ORIGINS = os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin]
 CORS_ALLOW_CREDENTIALS = True  # Add this line
+
+
+
+
+# Allow all methods (GET, POST, etc.)
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+]
+
+
+# Allow credentials (cookies, JWT tokens)
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow specific headers
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+    "accept",
+]
+
+
+
+
+
 
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -139,4 +172,4 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")  # Updated default
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
