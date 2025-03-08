@@ -1,19 +1,23 @@
-import React from 'react'
-import { Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui/button"
+// src/DarkMode.jsx
+import React from 'react';
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-// import { useTheme } from "@/components/theme-provider"
-
-
-
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from '@/components/ui/theme-provider';
 
 const DarkMode = () => {
-    // const { setTheme } = useTheme()
+    const { theme, setTheme } = useTheme();
+
+    const handleThemeChange = (newTheme) => {
+        console.log('Theme button clicked, setting theme to:', newTheme);
+        setTheme(newTheme);
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -24,18 +28,18 @@ const DarkMode = () => {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("light")}>
                     Light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
                     Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={() => handleThemeChange("system")}>
                     System
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
-    )
-}
+    );
+};
 
 export default DarkMode;

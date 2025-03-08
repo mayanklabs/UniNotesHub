@@ -33,10 +33,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']  
+    REQUIRED_FIELDS = ['name']
 
     def __str__(self):
         return self.email
-
+      
     class Meta:
         db_table = "users"  # Explicit table name for clarity
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='auth_profile')
+    picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.email}'s profile"

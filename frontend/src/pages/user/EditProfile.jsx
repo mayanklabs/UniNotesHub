@@ -8,36 +8,80 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
+import { useProfileStore } from "@/store/profileStore";
+import { updateProfile } from "@/utils/api/editProfileApi";
 
-const Profile = () => {
+const EditProfile = () => {
+  const { user, setAuth } = useAuthStore();
   const {
-    user,
     profileUpdate,
     setProfileName,
     setProfilePhoto,
     resetProfileUpdate,
     updateUserProfile,
-  } = useAuthStore();
+    fetchLatestProfile,
+  } = useProfileStore();
+
+  const [name, setName] = useState(user?.name || "");
+  const [profilePhoto, setProfilePhotoState] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(user?.profilePhoto || null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) fetchLatestProfile(token);
+  }, []);
+
+  useEffect(() => {
+    setName(user?.name || "");
+    setProfilePhotoState(null);
+    setPreviewUrl(user?.profilePhoto ? `http://localhost:8000${user.profilePhoto}` : null);
+  }, [user]);
 
   const onChangeHandler = (e) => {
     const file = e.target.files?.[0];
-    if (file) setProfilePhoto(file);
+    if (file) {
+      setProfilePhotoState(file);
+      setProfilePhoto(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
-  const handleUpdate = () => {
-    const updatedData = {
-      name: profileUpdate.name || user?.name, 
-      profilePhoto: profileUpdate.profilePhoto
-        ? URL.createObjectURL(profileUpdate.profilePhoto) 
-        : user?.profilePhoto, 
-    };
-    updateUserProfile(updatedData); 
-    resetProfileUpdate(); 
+  const handleUpdate = async () => {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (profilePhoto instanceof File) {
+      formData.append("profile_picture", profilePhoto);
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const backendData = await updateProfile(formData, token);
+
+      const updatedUser = {
+        name: backendData.name || user?.name,
+        email: backendData.email || user?.email,
+        profilePhoto: backendData.profile_picture || user?.profilePhoto,
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      updateUserProfile(updatedUser);
+      setAuth(updatedUser, token, localStorage.getItem("refreshToken"));
+
+      setName(updatedUser.name);
+      setProfilePhotoState(null);
+      setPreviewUrl(updatedUser.profilePhoto ? `http://localhost:8000${updatedUser.profilePhoto}` : null);
+
+      resetProfileUpdate();
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Error updating profile: " + (err.message || JSON.stringify(err)));
+    }
   };
 
   return (
@@ -47,10 +91,10 @@ const Profile = () => {
         <div className="flex flex-col items-center">
           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
             <AvatarImage
-              src={user?.profilePhoto || "https://github.com/shadcn.png"} 
-              alt={user?.name || "@shadcn"}
+              src={previewUrl || "https://github.com/shadcn.png"}
+              alt={user?.name || "@user"}
             />
-            <AvatarFallback>{user?.name?.[0] || "CN"}</AvatarFallback>
+            <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
           </Avatar>
         </div>
         <div>
@@ -72,9 +116,7 @@ const Profile = () => {
           </div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm" className="mt-2">
-                Edit Profile
-              </Button>
+              <Button size="sm" className="mt-2">Edit Profile</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -88,9 +130,12 @@ const Profile = () => {
                   <Label>Name</Label>
                   <Input
                     type="text"
-                    value={profileUpdate.name}
-                    onChange={(e) => setProfileName(e.target.value)}
-                    placeholder={user?.name || "Name"}
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setProfileName(e.target.value);
+                    }}
+                    placeholder="Enter your name"
                     className="col-span-3"
                   />
                 </div>
@@ -105,7 +150,9 @@ const Profile = () => {
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={handleUpdate}>Update</Button>
+                <DialogClose asChild>
+                  <Button onClick={handleUpdate}>Update</Button>
+                </DialogClose>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -115,4 +162,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default EditProfile;

@@ -21,10 +21,9 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/', include('pyqs.urls')),
     path('api/', include('universities.urls')),
-    path("", home, name="home"), 
+    path("", home, name="home"),
 ]
 
 # Serve static & media files in development mode
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
