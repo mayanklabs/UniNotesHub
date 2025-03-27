@@ -7,6 +7,7 @@ User = get_user_model()
 class UserProfileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user.name', required=False)
     email = serializers.EmailField(source='user.email', read_only=True)
+    profile_picture = serializers.ImageField(use_url=True)  # Ensure full URL is returned
 
     class Meta:
         model = UserProfile
@@ -14,18 +15,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email']
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', {})  # Extract 'user' data if present
+        # Extract user data if present
+        user_data = validated_data.pop('user', {})
         user = instance.user
 
-        # Update user model fields (e.g., name)
+        # Update user fields (e.g., name)
         if 'name' in user_data:
             user.name = user_data['name']
             user.save()
 
-        # Explicitly handle profile picture updates
-        profile_picture = validated_data.get('profile_picture', None)
-        if profile_picture is not None:  # Only update if a new image is provided
-            instance.profile_picture = profile_picture
-
+        # Let ModelSerializer handle the profile_picture update
+        if 'profile_picture' in validated_data:
+            print("Received file:", validated_data['profile_picture'])
+            instance.profile_picture = validated_data['profile_picture']
         instance.save()
+        print("Saved profile picture path:", instance.profile_picture.path)
         return instance
