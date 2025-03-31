@@ -25,9 +25,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             user.save()
 
         # Let ModelSerializer handle the profile_picture update
-        if 'profile_picture' in validated_data:
-            print("Received file:", validated_data['profile_picture'])
-            instance.profile_picture = validated_data['profile_picture']
+        profile_picture = validated_data.get('profile_picture', None)
+        if profile_picture is not None:  # Only update if a new image is provided
+            instance.profile_picture = profile_picture
+
+
         instance.save()
         print("Saved profile picture path:", instance.profile_picture.path)
         return instance

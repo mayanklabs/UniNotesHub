@@ -6,7 +6,6 @@ import uuid
 User = get_user_model()
 
 def upload_to(instance, filename):
-    """Generates a unique file path for user profile pictures."""
     ext = filename.split('.')[-1]  # Get file extension
     unique_filename = f"{uuid.uuid4()}.{ext}"  # Generate unique filename
     path = os.path.join('profile_pics', str(instance.user.id), unique_filename)
