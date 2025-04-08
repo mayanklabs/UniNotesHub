@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { useAuthStore } from './authStore';
-import { updateProfile } from '@/utils/api/editProfileApi';
+import { fetchProfile } from '@/utils/api/pyqApi';
 
 export const useProfileStore = create((set) => ({
   profileUpdate: { name: '', profilePhoto: null },
@@ -53,12 +53,9 @@ export const useProfileStore = create((set) => ({
     }
   },
 
-  fetchLatestProfile: async (token) => {
+  fetchLatestProfile: async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/users/profile/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
+      const data = await fetchProfile();
       const updatedUser = {
         name: data.name || '',
         profilePhoto: data.profile_picture || null,
@@ -68,11 +65,14 @@ export const useProfileStore = create((set) => ({
       localStorage.setItem('user', JSON.stringify(updatedUser));
       useAuthStore.getState().setAuth(
         updatedUser,
-        token,
+        localStorage.getItem('token'),
         localStorage.getItem('refreshToken')
       );
     } catch (error) {
       console.error("Failed to fetch latest profile:", error);
+      if (error.message.includes("Authentication failed")) {
+        window.location.href = "/login";
+      }
     }
   },
 }));

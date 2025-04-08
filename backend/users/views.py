@@ -30,6 +30,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         return response
 
 
+
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser, JSONParser)
@@ -41,11 +42,9 @@ class UserProfileView(APIView):
 
         user_profile, _ = UserProfile.objects.get_or_create(user=user)
         serializer = UserProfileSerializer(user_profile)
-
-        # Include user data along with profile
         return Response({
             "id": user.id,
-            "name": user.name,  # Assuming user has first_name for display
+            "name": user.name,
             "email": user.email,
             "profile": serializer.data
         }, status=200)
@@ -54,21 +53,14 @@ class UserProfileView(APIView):
         user = request.user
         user_profile, _ = UserProfile.objects.get_or_create(user=user)
 
-        # Extract profile picture if present
-        profile_picture = request.FILES.get("profile_picture")
+        # Prepare data for the serializer
+        data = request.data.copy()  # Mutable copy of request.data
+        if 'name' in data:
+            data['user'] = {'name': data.pop('name')}  # Nest name under 'user' for serializer
 
-        # Extract name if present
-        name = request.data.get("name", user.name)
-
-        # Update user model
-        user.name = name
-        user.save()
-
-        # Update user profile
-        serializer = UserProfileSerializer(user_profile, data=request.data, partial=True)
-        
+        serializer = UserProfileSerializer(user_profile, data=data, partial=True)
         if serializer.is_valid():
-            serializer.save(profile_picture=profile_picture if profile_picture else user_profile.profile_picture)
+            serializer.save()
             return Response({
                 "message": "Profile updated successfully!",
                 "data": {
@@ -78,5 +70,4 @@ class UserProfileView(APIView):
                     "profile": serializer.data
                 }
             }, status=200)
-
         return Response(serializer.errors, status=400)
