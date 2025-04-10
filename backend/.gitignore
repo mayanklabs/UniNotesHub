@@ -99,3 +99,9 @@ Thumbs.db
 
 # Git-related
 .git/
+
+
+# Ignore everything
+/*
+# Except the backend folder
+!/backend

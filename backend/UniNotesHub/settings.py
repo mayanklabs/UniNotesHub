@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'users',
     'pyqs',
     'universities',
-    'search',
+
     
 ]
 
