@@ -4,8 +4,11 @@ import os
 from django.utils import timezone
 from universities.models import University, Program, Branch, Course
 
+
+
 User = get_user_model()
 
+<<<<<<< HEAD
 def pyq_file_path(instance, filename):
     """
     Generate a unique file path for each PYQ upload.
@@ -19,6 +22,8 @@ def pyq_file_path(instance, filename):
     # Return the full path
     return os.path.join('pyqs', unique_name)
 
+=======
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1
 class PYQ(models.Model):
     SEMESTER_CHOICES = [
         ('1', 'Semester 1'),
@@ -44,12 +49,19 @@ class PYQ(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+<<<<<<< HEAD
         return f"{self.course.name} - {self.year} - Sem {self.semester}"
+=======
+        return f"{self.course.name} - {self.year}"
+
+    class Meta:
+        ordering = ['-year', '-uploaded_at']  # Sort by year (descending), then upload date
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1
 
 class PYQRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     pyq = models.ForeignKey(PYQ, on_delete=models.CASCADE, related_name="ratings")
-    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # 1-5 stars
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(0, 6)], default=0)  # 0-5 stars
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -57,4 +69,15 @@ class PYQRating(models.Model):
         unique_together = ('user', 'pyq')  # Ensure a user can rate a PYQ only once
 
     def __str__(self):
+<<<<<<< HEAD
         return f"{self.user.username} rated {self.pyq.course.name} ({self.rating}⭐)"
+=======
+        return f"{self.user.username} rated {self.pyq.course.name} ({self.rating}⭐)"
+
+    class Meta:
+        # Enforce one rating/comment per user per PYQ at the database level
+        unique_together = [['user', 'pyq']]
+        ordering = ['-created_at']  # Latest ratings first
+
+
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1

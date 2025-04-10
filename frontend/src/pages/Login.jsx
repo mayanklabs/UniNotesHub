@@ -47,17 +47,22 @@ const Login = () => {
       const inputData = type === "signup" ? signupInput : loginInput;
       const action = type === "signup" ? registerUser : loginUser;
       const response = await action(inputData);
+      console.log(`${type} response:`, response);
 
       if (type === "signup") {
         resetSignupInput();
         setSignupErrors({ success: "Please check your email to verify your account." });
       } else {
+        if (!response.token || !response.refreshToken) {
+          throw new Error("Invalid login response: missing tokens");
+        }
         setAuth(response.user, response.token, response.refreshToken);
         resetLoginInput();
         navigate("/");
       }
     } catch (err) {
-      const errors = err.error || err;
+      const errors = err.error || err || { general: `${type} failed` };
+      console.error(`${type} error:`, errors);
       if (type === "login") setLoginErrors(errors);
       else setSignupErrors(errors);
     } finally {
@@ -68,7 +73,6 @@ const Login = () => {
   const handleLogout = async () => {
     try {
       await logoutUser(refreshToken);
-      logout();
       navigate("/login");
     } catch (err) {
       setLoginErrors(err.error || { general: "Logout failed" });

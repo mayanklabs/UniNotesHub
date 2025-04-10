@@ -1,4 +1,25 @@
 import { create } from 'zustand';
+import axios from 'axios';
+
+// Standalone refreshToken function
+export const refreshAuthToken = async () => {
+  const refresh = localStorage.getItem('refreshToken');
+  if (!refresh) {
+    useAuthStore.setState({ isAuthenticated: false });
+    return null;
+  }
+  try {
+    const response = await axios.post('http://localhost:8000/api/token/refresh/', { refresh });
+    const newToken = response.data.access;
+    localStorage.setItem('token', newToken);
+    useAuthStore.setState({ token: newToken, isAuthenticated: true });
+    return newToken;
+  } catch (error) {
+    useAuthStore.setState({ isAuthenticated: false, token: null, refreshToken: null, user: null });
+    localStorage.clear();
+    return null;
+  }
+};
 
 export const useAuthStore = create((set) => ({
   signupInput: { name: '', email: '', password: '', confirmpassword: '' },
@@ -12,9 +33,9 @@ export const useAuthStore = create((set) => ({
   refreshToken: localStorage.getItem('refreshToken') || null,
 
   loading: false,
-  loginErrors: {}, // Changed to object for field-specific errors
-  signupErrors: {}, // Changed to object for field-specific errors
-  resetErrors: {}, // Changed to object for field-specific errors
+  loginErrors: {},
+  signupErrors: {},
+  resetErrors: {},
   resetSuccess: null,
 
   setSignupInput: (name, value) => set((state) => ({ signupInput: { ...state.signupInput, [name]: value } })),
@@ -47,10 +68,6 @@ export const useAuthStore = create((set) => ({
     localStorage.setItem('user', JSON.stringify(updatedUser));
     set((state) => ({
       user: { ...state.user, ...updatedUser },
-      loginErrors: {},
-      signupErrors: {},
-      resetErrors: {},
-      resetSuccess: null,
     }));
   },
 
@@ -70,6 +87,7 @@ export const useAuthStore = create((set) => ({
       resetErrors: {},
       resetSuccess: null,
     });
+    window.location.href = "/login";
   },
 
   setLoading: (loading) => set({ loading }),

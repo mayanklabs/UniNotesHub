@@ -15,18 +15,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email']
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', {})  # Extract 'user' data if present
+        # Extract user data if present
+        user_data = validated_data.pop('user', {})
         user = instance.user
 
-        # Update user model fields (e.g., name)
+        # Update user fields (e.g., name)
         if 'name' in user_data:
             user.name = user_data['name']
             user.save()
 
-        # Explicitly handle profile picture updates
+        # Let ModelSerializer handle the profile_picture update
         profile_picture = validated_data.get('profile_picture', None)
         if profile_picture is not None:  # Only update if a new image is provided
             instance.profile_picture = profile_picture
 
+
         instance.save()
+        print("Saved profile picture path:", instance.profile_picture.path)
         return instance
