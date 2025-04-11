@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "../store/authStore";
 import { registerUser, loginUser, logoutUser } from "../utils/api/authApi";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom"; // Added useLocation
 import { useEffect } from "react";
 
 const Login = () => {
@@ -29,10 +29,17 @@ const Login = () => {
     logout,
   } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation(); // Added to access query params
+
+  // Determine the default tab based on the query parameter
+  const defaultTab = new URLSearchParams(location.search).get('tab') === 'signup' ? 'signup' : 'login';
 
   useEffect(() => {
     console.log("Login component mounted, token:", token);
-  }, [token]);
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const changeInputHandler = (e, type) => {
     const { name, value } = e.target;
@@ -47,17 +54,22 @@ const Login = () => {
       const inputData = type === "signup" ? signupInput : loginInput;
       const action = type === "signup" ? registerUser : loginUser;
       const response = await action(inputData);
+      console.log(`${type} response:`, response);
 
       if (type === "signup") {
         resetSignupInput();
         setSignupErrors({ success: "Please check your email to verify your account." });
       } else {
+        if (!response.token || !response.refreshToken) {
+          throw new Error("Invalid login response: missing tokens");
+        }
         setAuth(response.user, response.token, response.refreshToken);
         resetLoginInput();
         navigate("/");
       }
     } catch (err) {
-      const errors = err.error || err;
+      const errors = err.error || err || { general: `${type} failed` };
+      console.error(`${type} error:`, errors);
       if (type === "login") setLoginErrors(errors);
       else setSignupErrors(errors);
     } finally {
@@ -81,7 +93,7 @@ const Login = () => {
 
   return (
     <div className="flex items-center w-full justify-center mt-20">
-      <Tabs defaultValue="login" className="w-[400px]" onValueChange={handleTabChange}>
+      <Tabs defaultValue={defaultTab} className="w-[400px]" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="signup">Signup</TabsTrigger>
           <TabsTrigger value="login">Login</TabsTrigger>
@@ -142,6 +154,7 @@ const Login = () => {
                 {signupErrors.confirm_password && <p className="text-red-500 text-sm">{signupErrors.confirm_password}</p>}
               </div>
               {signupErrors.success && <p className="text-green-500 text-sm">{signupErrors.success}</p>}
+              {signupErrors.general && <p className="text-red-500 text-sm">{signupErrors.general}</p>}
             </CardContent>
             <CardFooter>
               <Button onClick={() => handleRegistration("signup")} disabled={loading}>
