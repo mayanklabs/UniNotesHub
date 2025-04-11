@@ -2,10 +2,11 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from universities.models import University, Program, Branch, Course
 
+
+
 User = get_user_model()
 
 class PYQ(models.Model):
-
     SEMESTER_CHOICES = [
         ('1', 'Semester 1'),
         ('2', 'Semester 2'),
@@ -16,7 +17,6 @@ class PYQ(models.Model):
         ('7', 'Semester 7'),
         ('8', 'Semester 8'),
     ]
-
 
     YEAR_CHOICES = [(str(year), str(year)) for year in range(2000, 2031)]
 
@@ -33,15 +33,22 @@ class PYQ(models.Model):
     def __str__(self):
         return f"{self.course.name} - {self.year}"
 
-
-
+    class Meta:
+        ordering = ['-year', '-uploaded_at']  # Sort by year (descending), then upload date
 
 class PYQRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Only logged-in users
     pyq = models.ForeignKey(PYQ, on_delete=models.CASCADE, related_name="ratings")
-    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # 1-5 stars
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(0, 6)], default=0)  # 0-5 stars
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.name} rated {self.pyq.course.name} ({self.rating}⭐)"
+        return f"{self.user.username} rated {self.pyq.course.name} ({self.rating}⭐)"
+
+    class Meta:
+        # Enforce one rating/comment per user per PYQ at the database level
+        unique_together = [['user', 'pyq']]
+        ordering = ['-created_at']  # Latest ratings first
+
+

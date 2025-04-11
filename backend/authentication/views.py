@@ -16,6 +16,8 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from rest_framework.decorators import api_view
+from django.db import transaction  # Added for atomic transactions
+
 
 User = get_user_model()
 
@@ -26,31 +28,37 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            user.is_active = False
-            user.save()
-
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
-
             try:
-                send_mail(
-                    "Verify Your Email",
-                    f"Click the link to verify your email: {verification_link}",
-                    settings.EMAIL_HOST_USER,
-                    [user.email],
-                    fail_silently=False,
+                with transaction.atomic():
+                    user = serializer.create(serializer.validated_data)
+                    user.is_active = False
+                    
+                    uid = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = default_token_generator.make_token(user)
+                    verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
+
+                    send_mail(
+                        "Verify Your Email",
+                        f"Click the link to verify your email: {verification_link}",
+                        settings.EMAIL_HOST_USER,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                    
+                    user.save()
+
+                return Response(
+                    {"message": "Registration successful. Check your email to verify your account."},
+                    status=status.HTTP_201_CREATED
                 )
             except Exception as e:
-                return Response({"error": "Failed to send email", "details": str(e)},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            return Response({"message": "Registration successful. Check your email to verify your account."},
-                            status=status.HTTP_201_CREATED)
+                return Response(
+                    {"error": "Failed to send email", "details": str(e)},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# Rest of your views remain unchanged
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
@@ -66,7 +74,6 @@ class VerifyEmailView(APIView):
             return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
         except (ValueError, TypeError, OverflowError):
             return Response({"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -126,14 +133,12 @@ class LoginView(APIView):
 
         return Response({"error": {"password": "Incorrect password."}}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 @api_view(["GET"])
 def get_csrf_token(request):
     csrf_token = get_token(request)
     response = JsonResponse({"csrfToken": csrf_token})
     response.set_cookie("csrftoken", csrf_token, httponly=False, secure=True, samesite="Lax", max_age=1800)
     return response
-
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -153,7 +158,6 @@ class LogoutView(APIView):
         response.delete_cookie("refresh_token")
         response.delete_cookie("csrftoken")
         return response
-
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -208,7 +212,7 @@ class PasswordResetRequestView(APIView):
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-class PasswordResetConfirmView(APIView):  # Ensure this class is present
+class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, uidb64, token):
