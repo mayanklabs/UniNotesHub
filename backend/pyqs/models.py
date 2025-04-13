@@ -1,11 +1,29 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+import os
+from django.utils import timezone
 from universities.models import University, Program, Branch, Course
 
 
 
 User = get_user_model()
 
+<<<<<<< HEAD
+def pyq_file_path(instance, filename):
+    """
+    Generate a unique file path for each PYQ upload.
+    Format: pyqs/<uploader_id>_<timestamp>.<extension>
+    Example: pyqs/1_20250404120001.pdf
+    """
+    # Extract file extension
+    ext = filename.split('.')[-1]
+    # Create a unique filename using uploader ID and timestamp
+    unique_name = f"{instance.uploader.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+    # Return the full path
+    return os.path.join('pyqs', unique_name)
+
+=======
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1
 class PYQ(models.Model):
     SEMESTER_CHOICES = [
         ('1', 'Semester 1'),
@@ -26,24 +44,34 @@ class PYQ(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     year = models.CharField(max_length=4, choices=YEAR_CHOICES, default='2024')
     semester = models.CharField(max_length=1, choices=SEMESTER_CHOICES, default='1')
-    file = models.FileField(upload_to='pyqs/')
+    file = models.FileField(upload_to=pyq_file_path)  # Updated to use custom function
     uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pyqs_uploaded")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+<<<<<<< HEAD
+        return f"{self.course.name} - {self.year} - Sem {self.semester}"
+=======
         return f"{self.course.name} - {self.year}"
 
     class Meta:
         ordering = ['-year', '-uploaded_at']  # Sort by year (descending), then upload date
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1
 
 class PYQRating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Only logged-in users
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     pyq = models.ForeignKey(PYQ, on_delete=models.CASCADE, related_name="ratings")
     rating = models.IntegerField(choices=[(i, str(i)) for i in range(0, 6)], default=0)  # 0-5 stars
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'pyq')  # Ensure a user can rate a PYQ only once
+
     def __str__(self):
+<<<<<<< HEAD
+        return f"{self.user.username} rated {self.pyq.course.name} ({self.rating}⭐)"
+=======
         return f"{self.user.username} rated {self.pyq.course.name} ({self.rating}⭐)"
 
     class Meta:
@@ -52,3 +80,4 @@ class PYQRating(models.Model):
         ordering = ['-created_at']  # Latest ratings first
 
 
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1
