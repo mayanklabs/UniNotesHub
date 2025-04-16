@@ -80,6 +80,7 @@ const Login = () => {
   const handleLogout = async () => {
     try {
       await logoutUser(refreshToken);
+      logout();
       navigate("/login");
     } catch (err) {
       setLoginErrors(err.error || { general: "Logout failed" });
