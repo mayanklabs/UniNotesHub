@@ -10,7 +10,70 @@ pip-delete-this-directory.txt
 *.pyc
 *.pyo
 __pycache__/
+*.swp# === Python ===
+*.pyc
+*.pyo
+__pycache__/
 *.swp
+*.swo
+
+# === Virtual Environments ===
+venv/
+venv.bak/
+.env
+.env.local
+
+# === Pip Logs ===
+pip-log.txt
+pip-delete-this-directory.txt
+
+# === Django ===
+db.sqlite3
+*.log
+logs/
+security.log
+
+# === Migrations ===
+**/migrations/
+!**/migrations/__init__.py
+
+# === Static & Media Files ===
+staticfiles/
+media/
+static/
+media_root/
+static_root/
+
+# === IDEs and Editors ===
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Git ===
+.git/
+.gitignore
+
+# === Test Coverage ===
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# === Others ===
+*.bak
+*.tmp
+*.log
+
 *.swo
 
 # Django-specific files
@@ -38,6 +101,13 @@ Thumbs.db
 .git/
 
 
+<<<<<<< HEAD
+# Ignore everything
+/*
+# Except the backend folder
+!/backend
+=======
 # Ignore Django migrations
 **/migrations/
 !**/migrations/__init__.py
+>>>>>>> b195cecee5960a039679701d411bb6184a3058e1

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+import os
 
+# User Manager
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -23,12 +25,13 @@ class UserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
+# User Model
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)  # Added for clarity
+    is_superuser = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -39,11 +42,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
       
     class Meta:
-        db_table = "users"  # Explicit table name for clarity
+        db_table = "users"
 
+# Function to dynamically set profile picture path
+def user_directory_path(instance, filename):
+    return f"profile_pics/user_{instance.user.id}/{filename}"
+
+# Profile Model
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='auth_profile')
-    picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    picture = models.ImageField(upload_to=user_directory_path, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.email}'s profile"
