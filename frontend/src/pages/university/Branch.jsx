@@ -1,42 +1,40 @@
+// src/pages/university/BranchName.jsx
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import usePyqStore from "@/store/pyqStore";
+import { Link, useLocation } from "react-router-dom";
 import { fetchBranches } from "@/utils/api/pyqApi";
 
 const BranchName = () => {
-  const { selectedPath, branches, setBranches, setSelectedPath } = usePyqStore();
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const universityId = query.get('universityId');
+  const programId = query.get('programId');
 
   useEffect(() => {
     const loadBranches = async () => {
-      if (!selectedPath.programId) {
-        setBranches([]);
+      if (!programId) {
         setError("No program selected. Please choose a program first.");
         return;
       }
       setLoading(true);
-      setError(null);
       try {
-        const data = await fetchBranches(selectedPath.programId);
-        console.log("Fetched branches for program", selectedPath.programId, ":", data);
-        if (!Array.isArray(data) || data.length === 0) {
-          setError(`No branches found for program ID ${selectedPath.programId}`);
-          setBranches([]);
-        } else {
-          setBranches(data);
+        const data = await fetchBranches(programId);
+        console.log('Fetched branches:', data);
+        setBranches(data);
+        if (data.length === 0) {
+          setError("No branches available for this program.");
         }
       } catch (error) {
         setError(error.message || "Failed to fetch branches");
-        console.error("Error fetching branches:", error.response?.data || error);
-        setBranches([]);
       } finally {
         setLoading(false);
       }
     };
     loadBranches();
-  }, [selectedPath.programId, setBranches]);
+  }, [programId]);
 
   return (
     <div className="mt-20">
@@ -56,13 +54,16 @@ const BranchName = () => {
             >
               <div className="relative">
                 <img
-                  src="https://tse2.mm.bing.net/th?id=OIP.rZN0_UKCjsEpDqjhUazn0gHaEK&pid=Api&P=0&h=180"
-                  alt="branch"
+                  src={branch.image_url || "https://via.placeholder.com/150"}
+                  alt={`${branch.name} image`}
                   className="w-full h-36 object-cover rounded-t-lg"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/150"; // Fallback to placeholder on error
+                  }}
                 />
               </div>
               <CardContent className="py-2 flex justify-center items-center">
-                <Link to="/course" onClick={() => setSelectedPath({ branchId: branch.id })}>
+                <Link to={`/course?universityId=${universityId}&programId=${programId}&branchId=${branch.id}`}>
                   <h1 className="hover:underline font-bold text-lg truncate">{branch.name}</h1>
                 </Link>
               </CardContent>

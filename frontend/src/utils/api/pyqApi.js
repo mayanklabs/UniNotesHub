@@ -11,7 +11,7 @@ const getAuthHeaders = async () => {
     if (!token) throw new Error("No authentication token found. Please log in.");
   }
   return {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
 };
@@ -37,8 +37,41 @@ const apiRequest = async (method, url, data = null, headers = {}) => {
   }
 };
 
+export const fetchUniversities = async (query = '') => {
+  console.log('Fetching universities with query:', query);
+  return apiRequest('get', `${API_URL}universities/?q=${encodeURIComponent(query)}`);
+};
+
+export const fetchPrograms = async (universityId) => {
+  console.log('Fetching programs for universityId:', universityId);
+  return apiRequest('get', `${API_URL}programs/?university=${universityId}`);
+};
+
+export const fetchBranches = async (programId) => {
+  console.log('Fetching branches for programId:', programId);
+  return apiRequest('get', `${API_URL}branches/?program=${programId}`);
+};
+
+export const fetchCourses = async (branchId) => {
+  console.log('Fetching courses for branchId:', branchId);
+  return apiRequest('get', `${API_URL}courses/?branch=${branchId}`);
+};
+
+export const fetchPyqs = async (universityId, programId, branchId, courseId) => {
+  console.log('Fetching PYQs for:', { universityId, programId, branchId, courseId });
+  return apiRequest('get', `${API_URL}pyqs/university/${universityId}/program/${programId}/branch/${branchId}/courses/${courseId}/`);
+};
+
+export const fetchSearchSuggestions = async (query) => {
+  console.log('Fetching suggestions with query:', query);
+  return apiRequest('get', `${API_URL}pyqs/suggestions/?q=${encodeURIComponent(query)}`);
+};
+
 export const uploadPyq = async (formData) => {
-  return apiRequest('post', `${API_URL}pyqs/upload/`, formData, await getAuthHeaders());
+  return apiRequest('post', `${API_URL}pyqs/upload/`, formData, {
+    ...(await getAuthHeaders()),
+    "Content-Type": "multipart/form-data",
+  });
 };
 
 export const fetchUserPyqs = async () => {
@@ -46,27 +79,37 @@ export const fetchUserPyqs = async () => {
 };
 
 export const updateUserPyq = async (pyqId, formData) => {
-  return apiRequest('put', `${API_URL}pyqs/myuploads/${pyqId}/`, formData, await getAuthHeaders());
+  return apiRequest('put', `${API_URL}pyqs/myuploads/${pyqId}/`, formData, {
+    ...(await getAuthHeaders()),
+    "Content-Type": "multipart/form-data",
+  });
 };
 
 export const deleteUserPyq = async (pyqId) => {
   return apiRequest('delete', `${API_URL}pyqs/myuploads/${pyqId}/`, null, await getAuthHeaders());
 };
 
-export const fetchPyqs = async (universityId, programId, branchId, courseId) => {
-  return apiRequest('get', `${API_URL}pyqs/university/${universityId}/program/${programId}/branch/${branchId}/courses/${courseId}/`);
+export const fetchComments = async (pyqId) => {
+  const data = await apiRequest('get', `${API_URL}pyq/${pyqId}/ratings/`);
+  console.log(`Fetched comments for pyqId ${pyqId}:`, data);
+  return data;
 };
 
-export const fetchPrograms = async (universityId) => {
-  return apiRequest('get', `${API_URL}universities/${universityId}/programs/`);
+export const ratePyq = async (pyqId, rating, comment) => {
+  return apiRequest('post', `${API_URL}pyq/${pyqId}/rate/`, { rating, comment }, await getAuthHeaders());
 };
 
-export const fetchBranches = async (programId) => {
-  return apiRequest('get', `${API_URL}programs/${programId}/branches/`);
+export const updateComment = async (commentId, rating, comment) => {
+  return apiRequest('patch', `${API_URL}ratings/${commentId}/`, { rating, comment }, await getAuthHeaders());
 };
 
-export const fetchCourses = async (branchId) => {
-  return apiRequest('get', `${API_URL}branches/${branchId}/courses/`);
+export const deleteComment = async (commentId) => {
+  if (!commentId) {
+    console.error("deleteComment: commentId is undefined");
+    throw new Error("Cannot delete comment: No valid ID provided");
+  }
+  console.log(`Deleting comment with ID: ${commentId}`);
+  return apiRequest('delete', `${API_URL}ratings/${commentId}/`, null, await getAuthHeaders());
 };
 
 export const fetchProfile = async () => {

@@ -15,7 +15,12 @@ export const refreshAuthToken = async () => {
     useAuthStore.setState({ token: newToken, isAuthenticated: true });
     return newToken;
   } catch (error) {
-    useAuthStore.setState({ isAuthenticated: false, token: null, refreshToken: null, user: null });
+    useAuthStore.setState({
+      isAuthenticated: false,
+      token: null,
+      refreshToken: null,
+      user: null,
+    });
     localStorage.clear();
     return null;
   }
@@ -26,7 +31,7 @@ export const useAuthStore = create((set) => ({
   loginInput: { email: '', password: '' },
   resetInput: { email: '' },
   resetConfirmInput: { newPassword: '', confirmPassword: '' },
-  
+
   isAuthenticated: !!localStorage.getItem('token'),
   user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
@@ -41,20 +46,41 @@ export const useAuthStore = create((set) => ({
   setSignupInput: (name, value) => set((state) => ({ signupInput: { ...state.signupInput, [name]: value } })),
   setLoginInput: (name, value) => set((state) => ({ loginInput: { ...state.loginInput, [name]: value } })),
   setResetInput: (name, value) => set((state) => ({ resetInput: { ...state.resetInput, [name]: value } })),
-  setResetConfirmInput: (name, value) => set((state) => ({ resetConfirmInput: { ...state.resetConfirmInput, [name]: value } })),
-  
+  setResetConfirmInput: (name, value) =>
+    set((state) => ({ resetConfirmInput: { ...state.resetConfirmInput, [name]: value } })),
+
   resetSignupInput: () => set({ signupInput: { name: '', email: '', password: '', confirmpassword: '' } }),
   resetLoginInput: () => set({ loginInput: { email: '', password: '' } }),
   resetResetInput: () => set({ resetInput: { email: '' } }),
   resetResetConfirmInput: () => set({ resetConfirmInput: { newPassword: '', confirmPassword: '' } }),
 
   setAuth: (user, token, refreshToken) => {
-    localStorage.setItem('user', JSON.stringify(user));
+    // Extract user_id from token if id is missing
+    let userId = user?.id;
+    if (!userId && token) {
+      try {
+        const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+        userId = tokenPayload.user_id;
+      } catch (e) {
+        console.error('Failed to decode token:', e);
+      }
+    }
+
+    // Ensure user object always has an id
+    const updatedUser = {
+      id: userId,
+      email: user?.email || '',
+      name: user?.name || '',
+      profilePhoto: user?.profilePhoto || user?.profile_picture || '',
+    };
+
+    localStorage.setItem('user', JSON.stringify(updatedUser));
     localStorage.setItem('token', token);
     localStorage.setItem('refreshToken', refreshToken);
+
     set({
       isAuthenticated: true,
-      user,
+      user: updatedUser,
       token,
       refreshToken,
       loginErrors: {},
@@ -65,9 +91,11 @@ export const useAuthStore = create((set) => ({
   },
 
   updateUser: (updatedUser) => {
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    const currentUser = JSON.parse(localStorage.getItem('user')) || {};
+    const newUser = { ...currentUser, ...updatedUser };
+    localStorage.setItem('user', JSON.stringify(newUser));
     set((state) => ({
-      user: { ...state.user, ...updatedUser },
+      user: newUser,
     }));
   },
 
@@ -87,7 +115,7 @@ export const useAuthStore = create((set) => ({
       resetErrors: {},
       resetSuccess: null,
     });
-    window.location.href = "/login";
+    window.location.href = '/login';
   },
 
   setLoading: (loading) => set({ loading }),

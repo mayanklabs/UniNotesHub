@@ -1,4 +1,3 @@
-// src/components/PYQForm.jsx
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -28,30 +27,28 @@ const formSchema = z.object({
 const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
   const { isAuthenticated } = useAuthStore();
   const {
-    selectedPath,
     programs,
     branches,
     courses,
+    error, // Added error from usePyqStore
     setPrograms,
     setBranches,
     setCourses,
     addPyq,
     setUploading,
     setError,
-    error,
     fetchPyqsForPath,
   } = usePyqStore();
 
   const [universities, setUniversities] = useState([]);
-  const [loadingUniversities, setLoadingUniversities] = useState(true);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      university: initialData.university?.toString() || selectedPath.universityId || "",
-      program: initialData.program?.toString() || selectedPath.programId || "",
-      branch: initialData.branch?.toString() || selectedPath.branchId || "",
-      course: initialData.course?.toString() || selectedPath.courseId || "",
+      university: initialData.university?.toString() || "",
+      program: initialData.program?.toString() || "",
+      branch: initialData.branch?.toString() || "",
+      course: initialData.course?.toString() || "",
       year: initialData.year || "2024",
       semester: initialData.semester || "1",
       file: null,
@@ -62,32 +59,62 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
   const selectedProgram = form.watch("program");
   const selectedBranch = form.watch("branch");
 
+  // Load universities (runs once on mount)
   useEffect(() => {
     const loadUniversities = async () => {
       try {
-        setLoadingUniversities(true);
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}universities/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(`${API_URL}universities/`);
         setUniversities(response.data);
       } catch (error) {
         setError(error.message || "Failed to fetch universities");
-        toast.error("Failed to load universities");
-      } finally {
-        setLoadingUniversities(false);
       }
     };
     loadUniversities();
   }, [setError]);
 
+  // Initialize form data in edit mode
+  useEffect(() => {
+    const initializeEditMode = async () => {
+      if (isEditing && initialData) {
+        // Set form values explicitly
+        form.reset({
+          university: initialData.university?.toString() || "",
+          program: initialData.program?.toString() || "",
+          branch: initialData.branch?.toString() || "",
+          course: initialData.course?.toString() || "",
+          year: initialData.year || "2024",
+          semester: initialData.semester || "1",
+          file: null,
+        });
+
+        // Fetch dependent data sequentially
+        if (initialData.university) {
+          const programData = await fetchPrograms(initialData.university);
+          setPrograms(programData);
+        }
+        if (initialData.program) {
+          const branchData = await fetchBranches(initialData.program);
+          setBranches(branchData);
+        }
+        if (initialData.branch) {
+          const courseData = await fetchCourses(initialData.branch);
+          setCourses(courseData);
+        }
+      }
+    };
+    initializeEditMode();
+  }, [initialData, isEditing, form, setPrograms, setBranches, setCourses, setError]);
+
+  // Load programs when university changes (non-edit mode or after edit initialization)
   useEffect(() => {
     const loadPrograms = async () => {
-      if (selectedUniversity && (!programs.length || programs[0].university !== Number(selectedUniversity))) {
+      if (selectedUniversity && (!isEditing || !initialData.university)) {
         try {
           const programData = await fetchPrograms(selectedUniversity);
           setPrograms(programData);
-          if (!isEditing) form.setValue("program", "");
+          form.setValue("program", "");
+          form.setValue("branch", "");
+          form.setValue("course", "");
           setBranches([]);
           setCourses([]);
         } catch (error) {
@@ -96,15 +123,17 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
       }
     };
     loadPrograms();
-  }, [selectedUniversity, programs, setPrograms, setError, form, setBranches, setCourses, isEditing]);
+  }, [selectedUniversity, isEditing, initialData.university, setPrograms, setError, form, setBranches, setCourses]);
 
+  // Load branches when program changes
   useEffect(() => {
     const loadBranches = async () => {
-      if (selectedProgram && (!branches.length || branches[0].program !== Number(selectedProgram))) {
+      if (selectedProgram && (!isEditing || !initialData.program || selectedProgram !== initialData.program.toString())) {
         try {
           const branchData = await fetchBranches(selectedProgram);
           setBranches(branchData);
-          if (!isEditing) form.setValue("branch", "");
+          form.setValue("branch", "");
+          form.setValue("course", "");
           setCourses([]);
         } catch (error) {
           setError(error.message || "Failed to fetch branches");
@@ -112,22 +141,23 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
       }
     };
     loadBranches();
-  }, [selectedProgram, branches, setBranches, setError, form, setCourses, isEditing]);
+  }, [selectedProgram, isEditing, initialData.program, setBranches, setError, form, setCourses]);
 
+  // Load courses when branch changes
   useEffect(() => {
     const loadCourses = async () => {
-      if (selectedBranch && (!courses.length || courses[0].branch !== Number(selectedBranch))) {
+      if (selectedBranch && (!isEditing || !initialData.branch || selectedBranch !== initialData.branch.toString())) {
         try {
           const courseData = await fetchCourses(selectedBranch);
           setCourses(courseData);
-          if (!isEditing) form.setValue("course", "");
+          form.setValue("course", "");
         } catch (error) {
           setError(error.message || "Failed to fetch courses");
         }
       }
     };
     loadCourses();
-  }, [selectedBranch, courses, setCourses, setError, form, isEditing]);
+  }, [selectedBranch, isEditing, initialData.branch, setCourses, setError, form]);
 
   const handleProgramChange = (value) => {
     form.setValue("program", value);
@@ -196,7 +226,7 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
   return (
     <div className="max-w-2xl mx-auto p-6 mt-12">
       <h2 className="text-2xl font-bold mb-6">{isEditing ? "Edit PYQ" : "Upload Previous Year Question Paper"}</h2>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && <p className="text-red-500 mb-4">{error}</p>} {/* Line 228 */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
           <FormField
@@ -205,13 +235,10 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>University</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value} disabled={loadingUniversities || universities.length === 0}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={
-                        loadingUniversities ? "Loading universities..." :
-                        universities.length === 0 ? "No universities available" : "Select a university"
-                      } />
+                      <SelectValue placeholder="Select a university" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

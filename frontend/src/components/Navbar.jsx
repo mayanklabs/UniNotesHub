@@ -1,5 +1,4 @@
-// src/components/Navbar.jsx
-import { Book, Menu, Upload } from 'lucide-react'; // Added Upload icon
+import { Book, Menu, Upload } from 'lucide-react';
 import React, { useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import {
@@ -70,7 +69,7 @@ const Navbar = () => {
           <Book size={"30"} />
           <h1 className='font-extrabold text-2xl'>UniNotesHub</h1>
         </div>
-        <div className='flex items-center gap-4'> {/* Reduced gap from 8 to 4 for tighter spacing */}
+        <div className='flex items-center gap-4'>
           {isAuthenticated && user ? (
             <>
               <Button variant="outline" onClick={handleUploadRedirect} className="flex items-center gap-2">
@@ -107,7 +106,7 @@ const Navbar = () => {
           ) : (
             <div className="flex gap-4">
               <Button variant='outline' onClick={() => navigate('/login')}>Login</Button>
-              <Button onClick={() => navigate('/signup')}>Signup</Button>
+              <Button onClick={() => navigate('/login?tab=signup')}>Signup</Button> {/* Updated */}
             </div>
           )}
           <DarkMode />
@@ -174,7 +173,7 @@ const MobileNavbar = ({ user, isAuthenticated, handleLogout, handleUploadRedirec
           ) : (
             <>
               <span onClick={() => handleNavigation('/login')} className="cursor-pointer">Login</span>
-              <span onClick={() => handleNavigation('/signup')} className="cursor-pointer">Signup</span>
+              <span onClick={() => handleNavigation('/login?tab=signup')} className="cursor-pointer">Signup</span> {/* Updated */}
             </>
           )}
         </nav>

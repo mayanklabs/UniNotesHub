@@ -1,42 +1,41 @@
+// src/pages/university/CourseName.jsx
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import usePyqStore from "@/store/pyqStore";
+import { Link, useLocation } from "react-router-dom";
 import { fetchCourses } from "@/utils/api/pyqApi";
 
 const CourseName = () => {
-  const { selectedPath, courses, setCourses, setSelectedPath } = usePyqStore();
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const universityId = query.get('universityId');
+  const programId = query.get('programId');
+  const branchId = query.get('branchId');
 
   useEffect(() => {
     const loadCourses = async () => {
-      if (!selectedPath.branchId) {
-        setCourses([]);
+      if (!branchId) {
         setError("No branch selected. Please choose a branch first.");
         return;
       }
       setLoading(true);
-      setError(null);
       try {
-        const data = await fetchCourses(selectedPath.branchId);
-        console.log("Fetched courses for branch", selectedPath.branchId, ":", data);
-        if (!Array.isArray(data) || data.length === 0) {
-          setError(`No courses found for branch ID ${selectedPath.branchId}`);
-          setCourses([]);
-        } else {
-          setCourses(data);
+        const data = await fetchCourses(branchId);
+        console.log('Fetched courses:', data);
+        setCourses(data);
+        if (data.length === 0) {
+          setError("No courses available for this branch.");
         }
       } catch (error) {
         setError(error.message || "Failed to fetch courses");
-        console.error("Error fetching courses:", error.response?.data || error);
-        setCourses([]);
       } finally {
         setLoading(false);
       }
     };
     loadCourses();
-  }, [selectedPath.branchId, setCourses]);
+  }, [branchId]);
 
   return (
     <div className="mt-20">
@@ -56,13 +55,16 @@ const CourseName = () => {
             >
               <div className="relative">
                 <img
-                  src="https://tse2.mm.bing.net/th?id=OIP.FV5O7INzORJM7JPkSRB2iwHaHa&pid=Api&P=0&h=180"
-                  alt="course"
+                  src={course.image_url || "https://via.placeholder.com/150"}
+                  alt={`${course.name} image`}
                   className="w-full h-36 object-cover rounded-t-lg"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/150"; // Fallback to placeholder on error
+                  }}
                 />
               </div>
               <CardContent className="py-2 flex justify-center items-center">
-                <Link to="/questions" onClick={() => setSelectedPath({ courseId: course.id })}>
+                <Link to={`/questions?universityId=${universityId}&programId=${programId}&branchId=${branchId}&courseId=${course.id}`}>
                   <h1 className="hover:underline font-bold text-lg truncate">{course.name}</h1>
                 </Link>
               </CardContent>

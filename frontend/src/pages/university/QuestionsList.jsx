@@ -1,119 +1,50 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Star, Trash2, Edit2 } from "lucide-react";
-import usePyqStore from "@/store/pyqStore";
-import { fetchCourses } from "@/utils/api/pyqApi";
-import axios from "axios";
+// src/components/QuestionsList.jsx
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Star, Trash2, Edit2 } from 'lucide-react';
+import usePyqStore from '@/store/pyqStore';
+import useRatingStore from '@/store/ratingStore';
+import { useAuthStore } from '@/store/authStore';
+import { fetchCourses } from '@/utils/api/pyqApi';
 
-const API_URL = "http://localhost:8000/api/";
+const FALLBACK_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAAXNSR0IArs4c6QAAAEZJREFUWEft1jEKACAIRVG4/5W9wSgwCgrChdN2sADk9gMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4LcD2Y0AAXwQMSkAAAAASUVORK5CYII=';
 
-// Define currentUser globally
-const currentUser = {
-  id: null,
-  email: null,
-  name: null,
-  profilePicture: null,
-  token: null,
+const API_URL = 'http://localhost:8000/api/';
+
+const calculateAverageRating = (comments) => {
+  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0;
+  const totalRating = comments.reduce((sum, comment) => sum + (comment.rating || 0), 0);
+  return (totalRating / comments.length).toFixed(1);
 };
 
-const login = async (email, password) => {
-  try {
-    const response = await axios.post(`${API_URL}token/`, { email, password });
-    const token = response.data.access;
-    localStorage.setItem("token", token);
-    currentUser.token = token;
-    const userResponse = await axios.get(`${API_URL}users/profile/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    currentUser.id = userResponse.data.id;
-    currentUser.email = userResponse.data.email;
-    currentUser.name = userResponse.data.name;
-    currentUser.profilePicture = userResponse.data.profile?.profile_picture || null;
-    console.log("Login successful, currentUser:", currentUser);
-    return token;
-  } catch (err) {
-    console.error("Login failed:", err.response?.data || err.message);
-    throw err;
-  }
-};
+const Comment = React.memo(({ comment, onEdit, onDelete }) => {
+  const { user } = useAuthStore();
+  const displayName = comment.user || 'Unknown User';
+  const profilePicture = comment.user_profile_picture || FALLBACK_IMAGE;
 
-const fetchCommentsForQuestion = async (pyqId, token = null) => {
-  try {
-    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-    const response = await axios.get(`${API_URL}pyq/${pyqId}/ratings/`, config);
-    console.log(`Fetched comments for PYQ ${pyqId}:`, response.data);
-    return response.data;
-  } catch (err) {
-    console.error("Error fetching comments:", err.response?.data || err.message);
-    return [];
-  }
-};
-
-const saveCommentToBackend = async (pyqId, commentObj, token) => {
-  const payload = { pyq: pyqId, rating: commentObj.rating, comment: commentObj.text };
-  console.log("Saving comment for PYQ:", pyqId, "Payload:", payload);
-  try {
-    const response = await axios.post(`${API_URL}pyq/${pyqId}/rate/`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("Saved comment response:", response.data);
-    return response.data;
-  } catch (err) {
-    console.error("Error saving comment:", err.response?.data);
-    throw err;
-  }
-};
-
-const updateCommentInBackend = async (commentId, text, rating, token) => {
-  try {
-    const response = await axios.patch(`${API_URL}pyq/ratings/${commentId}/`, { comment: text, rating }, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("Updated comment:", response.data);
-    return response.data;
-  } catch (err) {
-    console.error("Error updating comment:", err.response?.data || err.message);
-    throw err;
-  }
-};
-
-const deleteCommentFromBackend = async (commentId, token) => {
-  try {
-    await axios.delete(`${API_URL}pyq/ratings/${commentId}/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("Deleted comment:", commentId);
-  } catch (err) {
-    console.error("Error deleting comment:", err.response?.data || err.message);
-    throw err;
-  }
-};
-
-const Comment = React.memo(({ comment, onEdit, onDelete, userId }) => {
-  const canEditDelete = userId && String(comment.user?.id) === String(userId);
-  console.log("Rendering comment:", comment, "userId:", userId, "canEditDelete:", canEditDelete);
   return (
     <div key={comment.id} className="flex items-start mb-2 border-b pb-2">
       <img
-        src={comment.user?.profile_picture || "/default-avatar.png"}
-        alt={comment.user?.name || comment.user?.email || "Unknown User"}
+        src={profilePicture}
+        alt={displayName}
         className="w-10 h-10 rounded-full mr-2"
-        onError={(e) => (e.target.src = "/default-avatar.png")}
+        onError={(e) => { if (e.target.src !== FALLBACK_IMAGE) e.target.src = FALLBACK_IMAGE; }}
       />
       <div className="flex-1">
-        <p className="font-semibold">{comment.user?.name || comment.user?.email || "Unknown User"}</p>
-        <p className="text-gray-700">{comment.comment || "No comment"}</p>
+        <p className="font-semibold">{displayName}</p>
+        <p className="text-gray-700">{comment.comment || 'No comment'}</p>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <Star
               key={star}
-              className={`w-4 h-4 ${comment.rating >= star ? "text-yellow-500" : "text-gray-400"}`}
+              className={`w-4 h-4 ${comment.rating >= star ? 'text-yellow-500' : 'text-gray-400'}`}
             />
           ))}
         </div>
-        {canEditDelete ? (
+        {comment.user_id === user?.id && (
           <div className="flex gap-2 mt-1">
             <Button variant="ghost" size="sm" onClick={() => onEdit(comment)}>
               <Edit2 className="w-4 h-4" />
@@ -122,112 +53,86 @@ const Comment = React.memo(({ comment, onEdit, onDelete, userId }) => {
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );
 });
 
 const QuestionsList = () => {
-  const { pyqs, selectedPath, fetchPyqsForPath, error } = usePyqStore();
+  const { pyqs, fetchPyqsForPath, error: pyqError } = usePyqStore();
+  const { comments, loadingComments, fetchComments, addComment, updateComment, deleteComment, error: ratingError } = useRatingStore();
+  const { user, token } = useAuthStore();
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const universityId = query.get('universityId');
+  const programId = query.get('programId');
+  const branchId = query.get('branchId');
+  const courseId = query.get('courseId');
+
   const [loading, setLoading] = useState(false);
-  const [courseName, setCourseName] = useState("Loading course name...");
+  const [courseName, setCourseName] = useState('No Course Selected');
   const [expandedRow, setExpandedRow] = useState(null);
-  const [comments, setComments] = useState({});
-  const [newComment, setNewComment] = useState("");
+  const [newComment, setNewComment] = useState('');
   const [ratings, setRatings] = useState({});
   const [editingComment, setEditingComment] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token") || currentUser.token);
-  const [loadingComments, setLoadingComments] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [userId, setUserId] = useState(null);
-  const [authError, setAuthError] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
-    const performLogin = async () => {
-      const storedToken = localStorage.getItem("token");
-      console.log("Initial token check - storedToken:", storedToken, "currentUser.token:", currentUser.token);
-      if (!token && !storedToken) {
-        try {
-          const newToken = await login("manishprasad2065@gmail.com", "yourpassword"); // Replace with real credentials
-          setToken(newToken);
-          setUserId(currentUser.id);
-          console.log("After login, userId set to:", currentUser.id);
-        } catch (err) {
-          console.error("Auto-login failed:", err.response?.data);
-          setAuthError("Login failed. Please check your credentials.");
-        }
-      } else if (!userId && (token || storedToken)) {
-        const activeToken = token || storedToken;
-        try {
-          const userResponse = await axios.get(`${API_URL}users/profile/`, {
-            headers: { Authorization: `Bearer ${activeToken}` },
-          });
-          currentUser.id = userResponse.data.id;
-          currentUser.email = userResponse.data.email;
-          currentUser.name = userResponse.data.name;
-          currentUser.profilePicture = userResponse.data.profile?.profile_picture || null;
-          setUserId(currentUser.id);
-          setToken(activeToken);
-          console.log("Fetched user profile, userId set to:", currentUser.id);
-        } catch (err) {
-          console.error("Failed to fetch user profile:", err.response?.data);
-          setAuthError("Failed to fetch user profile. Token may be invalid.");
-        }
-      }
-      console.log("Current userId after login attempt:", userId || "not set yet");
-    };
-    performLogin();
-  }, [token]);
+    const fetchData = async () => {
+      setLoading(true);
+      setFetchError(null);
 
-  useEffect(() => {
-    const loadPyqsAndCourse = async () => {
-      if (selectedPath.universityId && selectedPath.programId && selectedPath.branchId && selectedPath.courseId) {
-        setLoading(true);
-        try {
-          await fetchPyqsForPath(selectedPath.universityId, selectedPath.programId, selectedPath.branchId, selectedPath.courseId);
-          const courses = await fetchCourses(selectedPath.branchId);
-          const course = courses.find((c) => c.id === Number(selectedPath.courseId));
-          setCourseName(course ? course.name : "Course Not Found");
-        } catch (err) {
-          console.error("Error fetching data:", err);
-          setCourseName("Error loading course");
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setCourseName("No Course Selected");
+      if (!universityId || !programId || !branchId || !courseId) {
+        setFetchError("Please select a university, program, branch, and course to view questions.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Fetching PYQs with:', { universityId, programId, branchId, courseId });
+        await fetchPyqsForPath(universityId, programId, branchId, courseId);
+
+        const courses = await fetchCourses(branchId);
+        console.log('Fetched courses:', courses);
+        const course = courses.find(c => c.id === Number(courseId));
+        setCourseName(course ? course.name : 'Course Not Found');
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setFetchError(error.message || 'Failed to load questions.');
+      } finally {
+        setLoading(false);
       }
     };
-    loadPyqsAndCourse();
-  }, [selectedPath, fetchPyqsForPath]);
+    fetchData();
+  }, [universityId, programId, branchId, courseId, fetchPyqsForPath]);
 
   useEffect(() => {
     const loadComments = async () => {
-      if (pyqs.length === 0) return;
-      setLoadingComments(true);
-      const commentsData = {};
-      try {
-        await Promise.all(
-          pyqs.map(async (question) => {
-            commentsData[question.id] = await fetchCommentsForQuestion(question.id, token);
-          })
-        );
-        setComments(commentsData);
-      } catch (err) {
-        console.error("Failed to load comments:", err);
-      } finally {
-        setLoadingComments(false);
+      if (pyqs.length > 0) {
+        setLoading(true);
+        try {
+          for (const question of pyqs) {
+            if (!comments[question.id]) {
+              console.log(`Fetching comments for pyqId: ${question.id}`);
+              await fetchComments(question.id, token);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading comments:', error);
+        } finally {
+          setLoading(false);
+        }
       }
     };
     loadComments();
-  }, [pyqs, token]); // Removed userId dependency
+  }, [pyqs, fetchComments, comments, token]);
 
-  const sortedPyqs = [...pyqs].sort((a, b) => (b.year || b.uploaded_at || b.id) - (a.year || b.uploaded_at || a.id));
+  const sortedPyqs = [...pyqs].sort((a, b) => (b.year || b.uploaded_at || b.id) - (a.year || a.uploaded_at || a.id));
 
   const toggleRow = (questionId) => {
     setExpandedRow(expandedRow === questionId ? null : questionId);
-    setNewComment("");
+    setNewComment('');
     setEditingComment(null);
     setRatings((prev) => ({ ...prev, [questionId]: 0 }));
   };
@@ -236,108 +141,126 @@ const QuestionsList = () => {
     setRatings((prev) => ({ ...prev, [questionId]: rating }));
   };
 
-  const hasUserCommented = useCallback((questionId) => {
-    const hasCommented = comments[questionId]?.some((comment) => String(comment.user?.id) === String(userId));
-    console.log(`Has user ${userId} commented on ${questionId}? ${hasCommented}`);
-    return hasCommented;
-  }, [comments, userId]);
-
-  const getUserComment = useCallback((questionId) => {
-    return comments[questionId]?.find((comment) => String(comment.user?.id) === String(userId));
-  }, [comments, userId]);
+  const hasUserCommented = useCallback(
+    (questionId) => {
+      const questionComments = comments[questionId];
+      return Array.isArray(questionComments) && questionComments.some((comment) => comment.user_id === user?.id);
+    },
+    [comments, user]
+  );
 
   const submitComment = async (questionId) => {
-    if (!token || !userId) {
-      alert("Please log in to comment or rate.");
+    if (!token) {
+      alert('Please log in to comment or rate.');
       return;
     }
-    const rating = ratings[questionId] || 0;
-    if (!newComment.trim() && rating === 0) return;
-    if (submitting) return;
+    if (!newComment.trim() && !ratings[questionId]) return;
 
-    setSubmitting(true);
     try {
-      const userHasCommented = hasUserCommented(questionId);
       if (editingComment && editingComment.questionId === questionId) {
-        const updatedComment = await updateCommentInBackend(
-          editingComment.commentId,
-          newComment,
-          rating,
-          token
-        );
-        setComments((prev) => ({
-          ...prev,
-          [questionId]: prev[questionId].map((c) => (c.id === updatedComment.id ? updatedComment : c)),
-        }));
+        await updateComment(questionId, editingComment.commentId, newComment, ratings[questionId] || editingComment.rating, token);
         setEditingComment(null);
-      } else if (!userHasCommented) {
-        const commentObj = { text: newComment, rating: rating };
-        const savedComment = await saveCommentToBackend(questionId, commentObj, token);
-        setComments((prev) => ({
-          ...prev,
-          [questionId]: [savedComment, ...(prev[questionId] || [])],
-        }));
+      } else if (!hasUserCommented(questionId)) {
+        await addComment(questionId, { rating: ratings[questionId] || 0, text: newComment }, token);
       } else {
-        alert("You have already commented on this question. You can only edit or delete your existing comment.");
+        alert('You can only edit or delete your existing comment.');
+        return;
       }
-      setNewComment("");
+      setNewComment('');
       setRatings((prev) => ({ ...prev, [questionId]: 0 }));
     } catch (err) {
-      const errorMessage = err.response?.data?.non_field_errors?.[0] || err.response?.data?.detail || err.message;
-      alert("Failed to save comment: " + errorMessage);
-    } finally {
-      setSubmitting(false);
+      console.error('Submit comment error:', err);
+      alert(`Failed to ${editingComment ? 'update' : 'save'} comment: ${err.message || 'Unknown error'}`);
     }
-    console.log("User ID after submission:", userId);
   };
 
   const startEditingComment = (comment) => {
+    if (!token) {
+      alert('Please log in to edit your comment.');
+      return;
+    }
     setEditingComment({ questionId: comment.pyq, commentId: comment.id, rating: comment.rating });
-    setNewComment(comment.comment || "");
+    setNewComment(comment.comment || '');
     setRatings((prev) => ({ ...prev, [comment.pyq]: comment.rating }));
   };
 
-  const deleteComment = async (questionId, commentId) => {
-    if (!token || !userId) {
-      alert("Please log in to delete.");
+  const handleDeleteComment = async (commentId) => {
+    if (!token) {
+      alert('Please log in to delete.');
+      return;
+    }
+    if (!commentId) {
+      console.error('handleDeleteComment: commentId is undefined');
+      alert('Cannot delete comment: No valid ID provided');
       return;
     }
     try {
-      await deleteCommentFromBackend(commentId, token);
-      setComments((prev) => ({
-        ...prev,
-        [questionId]: prev[questionId].filter((c) => c.id !== commentId),
-      }));
+      console.log(`handleDeleteComment: Deleting comment with ID ${commentId} for pyqId ${expandedRow}`);
+      await deleteComment(expandedRow, commentId, token);
       setEditingComment(null);
-      setNewComment("");
-      setRatings((prev) => ({ ...prev, [questionId]: 0 }));
+      setNewComment('');
+      setRatings((prev) => ({ ...prev, [expandedRow]: 0 }));
     } catch (err) {
-      alert("Failed to delete comment: " + (err.response?.data?.detail || err.message));
+      console.error('Delete comment error:', err);
+      alert('Failed to delete comment: ' + (err.message || 'Unknown error'));
     }
   };
 
   const handleDownload = (fileUrl) => {
     if (!fileUrl) {
-      console.error("No file URL provided for download");
+      console.error('No file URL provided for download');
       return;
     }
-    const absoluteUrl = fileUrl.startsWith("http") ? fileUrl : `${API_URL}${fileUrl}`;
-    const link = document.createElement("a");
+    const absoluteUrl = fileUrl.startsWith('http') ? fileUrl : `${API_URL}${fileUrl}`;
+    const link = document.createElement('a');
     link.href = absoluteUrl;
-    link.download = absoluteUrl.split("/").pop();
+    link.download = absoluteUrl.split('/').pop();
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  const renderAverageStars = (averageRating) => {
+    const stars = [];
+    const fullStars = Math.floor(averageRating);
+    const hasHalfStar = averageRating % 1 >= 0.5;
+
+    for (let i = 1; i <= fullStars; i++) {
+      stars.push(<Star key={i} className="w-4 h-4 text-yellow-500" />);
+    }
+    if (hasHalfStar && fullStars < 5) {
+      stars.push(<Star key="half" className="w-4 h-4 text-yellow-500 half-star" />);
+    }
+    for (let i = stars.length + 1; i <= 5; i++) {
+      stars.push(<Star key={i} className="w-4 h-4 text-gray-400" />);
+    }
+    return stars;
+  };
+
   return (
     <div className="mt-20 px-14">
+      <style>
+        {`
+          .half-star {
+            position: relative;
+            overflow: hidden;
+            width: 50%;
+          }
+          .half-star::before {
+            content: '★';
+            position: absolute;
+            color: #facc15;
+          }
+        `}
+      </style>
       <h1 className="text-2xl font-bold text-center mb-6">{courseName}</h1>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      {authError && <p className="text-red-500 text-center mb-4">{authError}</p>}
+      {fetchError && <p className="text-red-500 text-center mb-4">{fetchError}</p>}
+      {(pyqError || ratingError) && (
+        <p className="text-red-500 text-center mb-4">{pyqError || ratingError}</p>
+      )}
       {loading ? (
         <p className="text-center">Loading questions...</p>
-      ) : (
+      ) : sortedPyqs.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
@@ -348,97 +271,88 @@ const QuestionsList = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedPyqs.length > 0 ? (
-              sortedPyqs.map((question, index) => {
-                const userComment = getUserComment(question.id);
-                return (
-                  <React.Fragment key={question.id}>
-                    <TableRow>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{question.year}</TableCell>
-                      <TableCell>
-                        <Button onClick={() => handleDownload(question.file_url)}>Download</Button>
-                      </TableCell>
-                      <TableCell>
+            {sortedPyqs.map((question, index) => {
+              const avgRating = calculateAverageRating(comments[question.id]);
+              return (
+                <React.Fragment key={question.id}>
+                  <TableRow>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{question.year || 'N/A'}</TableCell>
+                    <TableCell>
+                      <Button onClick={() => handleDownload(question.file_url || question.fileUrl)}>Download</Button>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-sm text-gray-700">
+                          Avg: {avgRating || 'N/A'}
+                        </span>
+                        <div className="flex gap-1">
+                          {renderAverageStars(parseFloat(avgRating) || 0)}
+                        </div>
                         <Button onClick={() => toggleRow(question.id)}>Rate</Button>
-                      </TableCell>
-                    </TableRow>
-                    {expandedRow === question.id && (
-                      <TableRow>
-                        <TableCell colSpan={4}>
-                          <div className="p-4 border rounded">
-                            <div className="max-h-64 overflow-y-auto mb-4">
-                              <h3 className="font-semibold mb-2">Comments & Ratings</h3>
-                              {loadingComments ? (
-                                <p>Loading comments...</p>
-                              ) : comments[question.id]?.length > 0 ? (
-                                comments[question.id].map((comment) => (
-                                  <Comment
-                                    key={comment.id}
-                                    comment={comment}
-                                    onEdit={startEditingComment}
-                                    onDelete={() => deleteComment(question.id, comment.id)}
-                                    userId={userId} // Pass userId, can be null for non-logged-in
-                                  />
-                                ))
-                              ) : (
-                                <p>No comments yet.</p>
-                              )}
-                            </div>
-                            {userId ? (
-                              !hasUserCommented(question.id) || editingComment?.questionId === question.id ? (
-                                <div>
-                                  <div className="flex gap-3 mb-2">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                      <Star
-                                        key={star}
-                                        className={`cursor-pointer ${ratings[question.id] >= star ? "text-yellow-500" : "text-gray-400"}`}
-                                        onClick={() => handleRating(question.id, star)}
-                                      />
-                                    ))}
-                                  </div>
-                                  <Textarea
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    placeholder={editingComment?.questionId === question.id ? "Edit your comment..." : "Write a comment..."}
-                                    className="mb-2"
-                                    disabled={submitting}
-                                  />
-                                  <Button
-                                    onClick={() => submitComment(question.id)}
-                                    disabled={submitting}
-                                  >
-                                    {submitting
-                                      ? "Submitting..."
-                                      : editingComment?.questionId === question.id
-                                      ? "Save Edit"
-                                      : "Post Comment"}
-                                  </Button>
-                                </div>
-                              ) : (
-                                <p className="text-gray-500">
-                                  You have already commented and rated this question. See your comment above.
-                                </p>
-                              )
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {expandedRow === question.id && (
+                    <TableRow>
+                      <TableCell colSpan={4}>
+                        <div className="p-4 border rounded">
+                          <div className="max-h-64 overflow-y-auto mb-4">
+                            <h3 className="font-semibold mb-2">Comments & Ratings</h3>
+                            {loadingComments ? (
+                              <p>Loading comments...</p>
+                            ) : Array.isArray(comments[question.id]) && comments[question.id].length > 0 ? (
+                              comments[question.id].map((comment) => (
+                                <Comment
+                                  key={comment.id}
+                                  comment={comment}
+                                  onEdit={startEditingComment}
+                                  onDelete={() => handleDeleteComment(comment.id)}
+                                />
+                              ))
                             ) : (
-                              <p className="text-gray-500">Please log in to comment or rate.</p>
+                              <p>No comments yet.</p>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="text-red-500 text-center">
-                  Questions are not Available
-                </TableCell>
-              </TableRow>
-            )}
+                          {token ? (
+                            !hasUserCommented(question.id) || editingComment?.questionId === question.id ? (
+                              <div>
+                                <div className="flex gap-3 mb-2">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`cursor-pointer ${ratings[question.id] >= star ? 'text-yellow-500' : 'text-gray-400'}`}
+                                      onClick={() => handleRating(question.id, star)}
+                                    />
+                                  ))}
+                                </div>
+                                <Textarea
+                                  value={newComment}
+                                  onChange={(e) => setNewComment(e.target.value)}
+                                  placeholder={editingComment?.questionId === question.id ? 'Edit your comment...' : 'Write a comment...'}
+                                  className="mb-2"
+                                />
+                                <Button onClick={() => submitComment(question.id)}>
+                                  {editingComment?.questionId === question.id ? 'Save Edit' : 'Post Comment'}
+                                </Button>
+                              </div>
+                            ) : (
+                              <p className="text-gray-500">You have already commented and rated this question. Edit or delete it above.</p>
+                            )
+                          ) : (
+                            <p className="text-gray-500">Please log in to leave a comment or rating.</p>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </TableBody>
         </Table>
+      ) : (
+        <p className="text-center text-red-500">No questions found for this course.</p>
       )}
     </div>
   );
