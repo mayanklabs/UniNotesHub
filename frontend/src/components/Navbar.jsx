@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import { Book, Menu, Upload } from 'lucide-react';
 import React, { useRef, useEffect } from 'react';
 import { Button } from './ui/button';

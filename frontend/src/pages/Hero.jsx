@@ -1,4 +1,3 @@
-// src/pages/Hero.jsx
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
@@ -22,13 +21,14 @@ const Hero = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { fetchSearchSuggestions, suggestions } = usePyqStore();
+  const { fetchSearchSuggestions, suggestions, isLoadingSuggestions, error } = usePyqStore();
 
   useEffect(() => {
     const debouncedUpdate = debounce((query) => {
       setDebouncedSearchQuery(query);
     }, 300);
     debouncedUpdate(searchQuery);
+    return () => clearTimeout(debouncedUpdate.timeoutId);
   }, [searchQuery]);
 
   const handleInputChange = (e) => {
@@ -36,7 +36,6 @@ const Hero = () => {
     setSearchQuery(value);
     if (value.trim()) {
       fetchSearchSuggestions(value);
-      console.log('Fetching suggestions for:', value);
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
@@ -46,14 +45,12 @@ const Hero = () => {
   const handleSuggestionClick = (item) => {
     setSearchQuery(item.name);
     setShowSuggestions(false);
-    console.log('Selected university:', item);
   };
 
   const toggleFilter = () => {
     setIsFilterOpen((prev) => !prev);
   };
 
-  // Callback from PYQFilter to handle university-only filter
   const handleFilterUpdate = (universityName) => {
     setSearchQuery(universityName);
     setIsFilterOpen(false);
@@ -88,13 +85,15 @@ const Hero = () => {
                     Filter Questions
                   </Button>
                 </div>
-                {showSuggestions && (
+                {error && (
+                  <div className="text-red-500 text-sm mt-2">{error}</div>
+                )}
+                {showSuggestions && !isLoadingSuggestions && (
                   <div className="absolute z-10 bg-white border rounded-md mt-12 w-full max-w-lg mx-auto max-h-60 overflow-y-auto shadow-lg">
-                    {console.log('Suggestions:', suggestions)}
                     {suggestions.universities.length > 0 ? (
                       <div>
                         <div className="p-2 font-bold text-sm text-gray-500">Universities</div>
-                        {suggestions.universities.map(item => (
+                        {suggestions.universities.map((item) => (
                           <div
                             key={item.id}
                             className="p-2 hover:bg-gray-100 cursor-pointer"
@@ -118,7 +117,10 @@ const Hero = () => {
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl">Filter Previous Year Questions</DialogTitle>
             </DialogHeader>
-            <PYQFilter onFilterComplete={() => setIsFilterOpen(false)} onUniversityFilter={handleFilterUpdate} />
+            <PYQFilter
+              onFilterComplete={() => setIsFilterOpen(false)}
+              onUniversityFilter={handleFilterUpdate}
+            />
           </DialogContent>
         </Dialog>
         <UniversityTable searchQuery={debouncedSearchQuery} />

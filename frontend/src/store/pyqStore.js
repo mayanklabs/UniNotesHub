@@ -1,4 +1,3 @@
-// src/store/pyqStore.js
 import { create } from "zustand";
 import {
   fetchPrograms,
@@ -8,6 +7,7 @@ import {
   fetchUserPyqs,
   updateUserPyq,
   deleteUserPyq,
+  fetchSearchSuggestions, // Import the API function
 } from "@/utils/api/pyqApi";
 
 const usePyqStore = create((set, get) => ({
@@ -23,8 +23,9 @@ const usePyqStore = create((set, get) => ({
   courses: [],
   pyqs: [],
   userPyqs: [],
-
+  suggestions: { universities: [] }, // Initialize suggestions
   isUploading: false,
+  isLoadingSuggestions: false, // Track suggestion loading
   error: null,
 
   setPrograms: (programs) => set({ programs }),
@@ -55,6 +56,37 @@ const usePyqStore = create((set, get) => ({
       courses: [],
       error: null,
     }),
+
+  fetchSearchSuggestions: async (query) => {
+    if (!query.trim()) {
+      set({ suggestions: { universities: [] }, isLoadingSuggestions: false });
+      return;
+    }
+    set({ isLoadingSuggestions: true });
+    try {
+      const data = await fetchSearchSuggestions(query);
+      // Transform API response to ensure { universities: [...] } structure
+      const universities = Array.isArray(data)
+        ? data.map((item) => ({
+            id: item.id,
+            name: item.name,
+          }))
+        : Array.isArray(data.universities)
+        ? data.universities
+        : [];
+      set({
+        suggestions: { universities },
+        isLoadingSuggestions: false,
+      });
+    } catch (error) {
+      console.error("Error fetching search suggestions:", error);
+      set({
+        suggestions: { universities: [] },
+        isLoadingSuggestions: false,
+        error: error.message || "Failed to fetch suggestions",
+      });
+    }
+  },
 
   fetchPyqsForPath: async (universityId, programId, branchId, courseId) => {
     try {
