@@ -13,7 +13,6 @@ urlpatterns = [
     path('api/', include([
         path('', include('pyqs.urls')),
         path('', include('authentication.urls')),
-        path('', include('search.urls')),
         path('', include('users.urls')),
         path('', include('universities.urls')),
     ])),
