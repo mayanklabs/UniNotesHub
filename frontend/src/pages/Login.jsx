@@ -92,12 +92,18 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center w-full justify-center mt-20">
+    <div className="flex items-center w-full justify-center flex-col min-h-screen bg-gradient-to-br from-purple-600 to-blue-600/70">
+      <h2 className="text-2xl font-bold text-white mb-6 px-4 py-2 rounded-md">
+        Login or Signup to Continue
+      </h2>
+
       <Tabs defaultValue={defaultTab} className="w-[400px]" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="signup">Signup</TabsTrigger>
           <TabsTrigger value="login">Login</TabsTrigger>
         </TabsList>
+
+        {/* Signup Tab */}
         <TabsContent value="signup">
           <Card>
             <CardHeader>
@@ -163,6 +169,8 @@ const Login = () => {
             </CardFooter>
           </Card>
         </TabsContent>
+
+        {/* Login Tab */}
         <TabsContent value="login">
           <Card>
             <CardHeader>
@@ -196,7 +204,7 @@ const Login = () => {
               </div>
               {loginErrors.general && <p className="text-red-500 text-sm">{loginErrors.general}</p>}
               <p className="text-sm text-center mt-2">
-                <Link to="/forgot-password" className="text-blue-500 hover:underline">
+                <Link to="/forgot-password" className="text-red-700 hover:underline">
                   Forgot Password?
                 </Link>
               </p>

@@ -38,7 +38,7 @@ const ProgramName = () => {
   return (
     <div className="mt-20">
       <div className="flex justify-center">
-        <h2 className="text-2xl font-bold mb-4">Choose a Program</h2>
+        <h2 className="text-3xl md:text-2xl text-dark-blue font-bold">Choose a Program</h2>
       </div>
       <div className="mx-10 gap-4 flex flex-row justify-center flex-wrap md:flex md:justify-start">
         {loading ? (

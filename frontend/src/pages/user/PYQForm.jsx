@@ -386,7 +386,7 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={usePyqStore((state) => state.isUploading)} className="w-full">
+          <Button  type="submit" disabled={usePyqStore((state) => state.isUploading)} className="w-full text-white bg-gradient-to-br from-purple-600 to-blue-600/70 hover:bg-gradient-to-br hover:from-purple-700 hover:to-blue-700/70 border-none">
             {usePyqStore((state) => state.isUploading) ? "Processing..." : isEditing ? "Update PYQ" : "Upload PYQ"}
           </Button>
         </form>
@@ -394,5 +394,5 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
     </div>
   );
 };
-
+ 
 export default PYQForm;

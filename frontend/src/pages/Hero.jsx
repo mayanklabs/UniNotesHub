@@ -59,40 +59,48 @@ const Hero = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
-        <section className="bg-primary/5 py-16">
+        <section className="bg-gradient-to-br from-purple-600 to-blue-600/70 py-16 text-white mt-4">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
                 Access Previous Year Question Papers
               </h1>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-lg md:text-xl text-white/90 mb-8">
                 Search by university or filter by university, program, branch, or course.
               </p>
               <div className="max-w-lg mx-auto">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Input
                     placeholder="Search by university..."
-                    className="shadow-sm flex-1"
+                    className="shadow-sm flex-1 text-black"
                     value={searchQuery}
                     onChange={handleInputChange}
                   />
-                  <Button onClick={() => setShowSuggestions(!showSuggestions)}>
+                  <Button
+                    onClick={() => setShowSuggestions(!showSuggestions)}
+                    className="bg-white text-purple-700 hover:bg-purple-100"
+                  >
                     <Search className="h-4 w-4 mr-2" />
                     Search
                   </Button>
-                  <Button onClick={toggleFilter}>
+                  <Button
+                    onClick={toggleFilter}
+                    className="bg-white text-purple-700 hover:bg-purple-100"
+                  >
                     <Filter className="h-4 w-4 mr-2" />
                     Filter Questions
                   </Button>
                 </div>
                 {error && (
-                  <div className="text-red-500 text-sm mt-2">{error}</div>
+                  <div className="text-red-200 text-sm mt-2">{error}</div>
                 )}
                 {showSuggestions && !isLoadingSuggestions && (
-                  <div className="absolute z-10 bg-white border rounded-md mt-12 w-full max-w-lg mx-auto max-h-60 overflow-y-auto shadow-lg">
+                  <div className="absolute z-10 bg-white border rounded-md mt-12 w-full max-w-lg mx-auto max-h-60 overflow-y-auto shadow-lg text-black">
                     {suggestions.universities.length > 0 ? (
                       <div>
-                        <div className="p-2 font-bold text-sm text-gray-500">Universities</div>
+                        <div className="p-2 font-bold text-sm text-gray-500">
+                          Universities
+                        </div>
                         {suggestions.universities.map((item) => (
                           <div
                             key={item.id}
@@ -112,10 +120,13 @@ const Hero = () => {
             </div>
           </div>
         </section>
+  
         <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <DialogContent className="max-w-[90vw] sm:max-w-lg p-4">
             <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl">Filter Previous Year Questions</DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">
+                Filter Previous Year Questions
+              </DialogTitle>
             </DialogHeader>
             <PYQFilter
               onFilterComplete={() => setIsFilterOpen(false)}
@@ -123,10 +134,13 @@ const Hero = () => {
             />
           </DialogContent>
         </Dialog>
+  
         <UniversityTable searchQuery={debouncedSearchQuery} />
       </main>
     </div>
   );
+  
+  
 };
 
 export default Hero;
