@@ -253,7 +253,7 @@ const QuestionsList = () => {
           }
         `}
       </style>
-      <h1 className="text-2xl font-bold text-center mb-6">{courseName}</h1>
+      <h1 className="text-2xl text-center mb-6  md:text-3xl text-dark-blue font-bold">{courseName}</h1>
       {fetchError && <p className="text-red-500 text-center mb-4">{fetchError}</p>}
       {(pyqError || ratingError) && (
         <p className="text-red-500 text-center mb-4">{pyqError || ratingError}</p>
@@ -279,7 +279,7 @@ const QuestionsList = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{question.year || 'N/A'}</TableCell>
                     <TableCell>
-                      <Button onClick={() => handleDownload(question.file_url || question.fileUrl)}>Download</Button>
+                      <Button className="text-white bg-gradient-to-br from-purple-600 to-blue-600/70 hover:bg-gradient-to-br hover:from-purple-700 hover:to-blue-700/70 border-none" onClick={() => handleDownload(question.file_url || question.fileUrl)}>Download</Button>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col items-center gap-1">
@@ -289,7 +289,7 @@ const QuestionsList = () => {
                         <div className="flex gap-1">
                           {renderAverageStars(parseFloat(avgRating) || 0)}
                         </div>
-                        <Button onClick={() => toggleRow(question.id)}>Rate</Button>
+                        <Button className="text-white bg-gradient-to-br from-purple-600 to-blue-600/70 hover:bg-gradient-to-br hover:from-purple-700 hover:to-blue-700/70 border-none" onClick={() => toggleRow(question.id)}>Rate</Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -332,7 +332,7 @@ const QuestionsList = () => {
                                   placeholder={editingComment?.questionId === question.id ? 'Edit your comment...' : 'Write a comment...'}
                                   className="mb-2"
                                 />
-                                <Button onClick={() => submitComment(question.id)}>
+                                <Button className="text-white bg-gradient-to-br from-purple-600 to-blue-600/70 hover:bg-gradient-to-br hover:from-purple-700 hover:to-blue-700/70 border-none" onClick={() => submitComment(question.id)}>
                                   {editingComment?.questionId === question.id ? 'Save Edit' : 'Post Comment'}
                                 </Button>
                               </div>

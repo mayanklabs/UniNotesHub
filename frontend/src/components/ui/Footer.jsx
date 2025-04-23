@@ -2,12 +2,12 @@ import { GitGraphIcon } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="w-full border-t bg-background">
+    <footer className="w-full bg-gradient-to-br from-purple-600 to-blue-600/70 text-white border-t-0">
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="font-semibold text-lg mb-3">About</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/90">
               A platform for university students to share and access previous
               year question papers. Help your juniors prepare better for their
               exams.
@@ -15,14 +15,14 @@ export function Footer() {
           </div>
           <div>
             <h3 className="font-semibold text-lg mb-3">Quick Links</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <ul className="space-y-2 text-sm text-white/90">
               <li>
-                <a href="/" className="hover:text-primary">
+                <a href="/" className="hover:text-white">
                   Home
                 </a>
               </li>
               <li>
-                <a href="/upload" className="hover:text-primary">
+                <a href="/upload" className="hover:text-white">
                   Upload Paper
                 </a>
               </li>
@@ -35,17 +35,16 @@ export function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary"
+                className="text-white/80 hover:text-white"
               >
                 <GitGraphIcon className="h-5 w-5" />
               </a>
             </div>
           </div>
         </div>
-        <div className="mt-8 pt-6 border-t text-center text-sm text-muted-foreground">
+        <div className="mt-8 pt-6 border-t border-white/30 text-center text-sm text-white/70">
           <p>
-            © {new Date().getFullYear()} UniNotesHub. All rights
-            reserved.
+            © {new Date().getFullYear()} UniNotesHub. All rights reserved.
           </p>
         </div>
       </div>

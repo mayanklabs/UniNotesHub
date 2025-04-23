@@ -1,6 +1,7 @@
 // src/components/Navbar.jsx
 import { Book, Menu, Upload } from 'lucide-react';
 import React, { useRef, useEffect } from 'react';
+// import logo from '../assets/logo.png'
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -59,22 +60,22 @@ const Navbar = () => {
   };
 
   return (
-    <div className='h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10'>
+    <div className='h-16 bg-white border-b border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10'>
       {(error || profileError) && (
         <div className="bg-red-500 text-white text-center py-2">{error || profileError}</div>
       )}
 
       {/* Desktop Navbar */}
       <div className='max-w-7xl mx-auto hidden md:flex justify-between items-center gap-10 h-full px-4'>
-        <div className='flex items-center gap-2'>
-          <Book size={"30"} />
-          <h1 className='font-extrabold text-2xl'>UniNotesHub</h1>
+        <div className="flex items-center gap-2">
+          <img src="/images/logo.png" alt="UniNotesHub Logo" className="h-10 w-auto" />
+          <span className="text-dark-blue font-bold text-lg">UniNotesHub</span>
         </div>
         <div className='flex items-center gap-4'>
           {isAuthenticated && user ? (
             <>
-              <Button variant="outline" onClick={handleUploadRedirect} className="flex items-center gap-2">
-                <Upload size={16} />
+              <Button variant="outline" onClick={handleUploadRedirect} className="text-white bg-gradient-to-br from-purple-600 to-blue-600/70 hover:bg-gradient-to-br hover:from-purple-700 hover:to-blue-700/70 border-none">
+                <Upload size={16} className="text-white" />
                 Upload
               </Button>
               <DropdownMenu>
@@ -106,17 +107,17 @@ const Navbar = () => {
             </>
           ) : (
             <div className="flex gap-4">
-              <Button variant='outline' onClick={() => navigate('/login')}>Login</Button>
-              <Button onClick={() => navigate('/login?tab=signup')}>Signup</Button> {/* Updated */}
+              <Button variant='outline' onClick={() => navigate('/login')} className="text-white bg-dark-purple border-dark-purple ">Login</Button>
+              <Button variant='outline' onClick={() => navigate('/login?tab=signup')} className="text-white bg-dark-purple border-dark-purple ">Signup</Button>
             </div>
           )}
-          <DarkMode />
+          {/* <DarkMode /> */}
         </div>
       </div>
 
       {/* Mobile Navbar */}
       <div className='flex md:hidden items-center justify-between px-4 h-full'>
-        <h1 className='font-extrabold text-xl'>UniNotesHub</h1>
+        <img src="/images/logo.png" alt="UniNotesHub Logo" className="h-8" />
         <MobileNavbar
           user={user}
           isAuthenticated={isAuthenticated}
@@ -146,8 +147,11 @@ const MobileNavbar = ({ user, isAuthenticated, handleLogout, handleUploadRedirec
       </SheetTrigger>
       <SheetContent className='flex flex-col'>
         <SheetHeader className='flex flex-row items-center justify-between mt-2'>
-          <SheetTitle>UniNotesHub</SheetTitle>
-          <DarkMode />
+        <div className="flex items-center gap-2">
+          <img src="/images/logo.png" alt="UniNotesHub Logo" className="h-10 w-auto" />
+          <span className="text-dark-blue font-bold text-lg">UniNotesHub</span>
+        </div>
+          {/* <DarkMode /> */}
         </SheetHeader>
         <Separator className='mr-2' />
         <nav className='flex flex-col space-y-4'>
@@ -174,7 +178,7 @@ const MobileNavbar = ({ user, isAuthenticated, handleLogout, handleUploadRedirec
           ) : (
             <>
               <span onClick={() => handleNavigation('/login')} className="cursor-pointer">Login</span>
-              <span onClick={() => handleNavigation('/login?tab=signup')} className="cursor-pointer">Signup</span> {/* Updated */}
+              <span onClick={() => handleNavigation('/login?tab=signup')} className="cursor-pointer">Signup</span>
             </>
           )}
         </nav>
