@@ -176,8 +176,8 @@ class ProfileView(APIView):
         user.name = name
         user.save()
 
-        if not hasattr(user, 'auth_profile'):
-            Profile.objects.create(user=user)
+        profile, created = Profile.objects.get_or_create(user=user)
+        user.refresh_from_db()
 
         if profile_picture:
             user.auth_profile.picture = profile_picture

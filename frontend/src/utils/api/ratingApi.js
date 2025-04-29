@@ -50,7 +50,7 @@ const apiRequest = async (method, url, data = null, token = null, requireAuth = 
 };
 
 export const fetchCommentsForQuestion = async (pyqId, token = null) => {
-  const data = await apiRequest('get', `${API_URL}/pyq/${pyqId}/ratings/`, null, token, false);
+  const data = await apiRequest('get', `${API_URL}/pyqs/${pyqId}/ratings/`, null, token, false);
   console.log(`Fetched comments for pyqId ${pyqId}:`, data); // Debug
   return data;
 };
@@ -61,7 +61,7 @@ export const saveCommentToBackend = async (pyqId, commentObj, token) => {
     rating: commentObj.rating,
     comment: commentObj.text
   };
-  return apiRequest('post', `${API_URL}/pyq/${pyqId}/rate/`, payload, token, true);
+  return apiRequest('post', `${API_URL}/pyqs/${pyqId}/rate/`, payload, token, true);
 };
 
 export const updateCommentInBackend = async (pyqId, commentId, text, rating, token) => {

@@ -89,17 +89,17 @@ export const deleteUserPyq = async (pyqId) => {
 };
 
 export const fetchComments = async (pyqId) => {
-  const data = await apiRequest('get', `${API_URL}/universities/pyq/${pyqId}/ratings/`);
+  const data = await apiRequest('get', `${API_URL}/pyqs/${pyqId}/ratings/`);
   console.log(`Fetched comments for pyqId ${pyqId}:`, data);
   return data;
 };
 
 export const ratePyq = async (pyqId, rating, comment) => {
-  return apiRequest('post', `${API_URL}/universities/pyq/${pyqId}/rate/`, { rating, comment }, await getAuthHeaders());
+  return apiRequest('post', `${API_URL}/pyqs/${pyqId}/rate/`, { rating, comment }, await getAuthHeaders());
 };
 
 export const updateComment = async (commentId, rating, comment) => {
-  return apiRequest('patch', `${API_URL}/universities/ratings/${commentId}/`, { rating, comment }, await getAuthHeaders());
+  return apiRequest('patch', `${API_URL}/pyqs/ratings/${commentId}/`, { rating, comment }, await getAuthHeaders());
 };
 
 export const deleteComment = async (commentId) => {
@@ -112,5 +112,5 @@ export const deleteComment = async (commentId) => {
 };
 
 export const fetchProfile = async () => {
-  return apiRequest('get', `${API_URL}/universities/users/profile/`, null, await getAuthHeaders());
+  return apiRequest('get', `${API_URL}/auth/users/profile/`, null, await getAuthHeaders());
 };

@@ -55,11 +55,11 @@ const CourseName = () => {
             >
               <div className="relative">
                 <img
-                  src={course.image_url || "https://via.placeholder.com/150"}
+                  src={course.image_url || "https://placehold.co/150"}
                   alt={`${course.name} image`}
                   className="w-full h-36 object-cover rounded-t-lg"
                   onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/150"; // Fallback to placeholder on error
+                    e.target.src = "https://placehold.co/150"; // Fallback to placeholder on error
                   }}
                 />
               </div>

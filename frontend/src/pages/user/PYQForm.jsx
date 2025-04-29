@@ -48,7 +48,7 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
       program: initialData.program?.toString() || "",
       branch: initialData.branch?.toString() || "",
       course: initialData.course?.toString() || "",
-      year: initialData.year || "2024",
+      year: initialData.year || "2025",
       semester: initialData.semester || "1",
       file: null,
     },
@@ -81,7 +81,7 @@ const PYQForm = ({ initialData = {}, onSubmit = null, isEditing = false }) => {
           program: initialData.program?.toString() || "",
           branch: initialData.branch?.toString() || "",
           course: initialData.course?.toString() || "",
-          year: initialData.year || "2024",
+          year: initialData.year || "2025",
           semester: initialData.semester || "1",
           file: null,
         });

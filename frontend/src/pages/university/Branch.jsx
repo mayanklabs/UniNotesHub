@@ -54,11 +54,11 @@ const BranchName = () => {
             >
               <div className="relative">
                 <img
-                  src={branch.image_url || "https://via.placeholder.com/150"}
+                  src={branch.image_url || "https://placehold.co/150"}
                   alt={`${branch.name} image`}
                   className="w-full h-36 object-cover rounded-t-lg"
                   onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/150"; // Fallback to placeholder on error
+                    e.target.src = "https://placehold.co/150"; // Fallback to placeholder on error
                   }}
                 />
               </div>

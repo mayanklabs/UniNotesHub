@@ -72,7 +72,7 @@ const Hero = () => {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Input
                     placeholder="Search by university..."
-                    className="shadow-sm flex-1 text-black"
+                    className="shadow-sm flex-1 text-black bg-white"
                     value={searchQuery}
                     onChange={handleInputChange}
                   />
@@ -120,7 +120,7 @@ const Hero = () => {
             </div>
           </div>
         </section>
-  
+
         <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <DialogContent className="max-w-[90vw] sm:max-w-lg p-4">
             <DialogHeader>
@@ -134,13 +134,13 @@ const Hero = () => {
             />
           </DialogContent>
         </Dialog>
-  
+
         <UniversityTable searchQuery={debouncedSearchQuery} />
       </main>
     </div>
   );
-  
-  
+
+
 };
 
 export default Hero;

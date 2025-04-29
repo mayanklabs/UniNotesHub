@@ -50,7 +50,7 @@ export const updateProfile = async (profileData) => {
     let { access } = getTokens();
 
     try {
-        const response = await axios.put(`${API_URL}/users/users/profile/`, profileData, {
+        const response = await axios.put(`${API_URL}/auth/users/profile/`, profileData, {
             headers: { Authorization: `Bearer ${access}` },
         });
         return response.data;

@@ -53,11 +53,11 @@ const ProgramName = () => {
             >
               <div className="relative">
                 <img
-                  src={program.image_url || "https://via.placeholder.com/150"}
+                  src={program.image_url || "https://placehold.co/150"}
                   alt={`${program.name} image`}
                   className="w-full h-36 object-cover rounded-t-lg"
                   onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/150"; // Fallback to placeholder on error
+                    e.target.src = "https://placehold.co/150"; // Fallback to placeholder on error
                   }}
                 />
               </div>

@@ -68,8 +68,8 @@ const Navbar = () => {
 
       {/* Desktop Navbar */}
       <div className='max-w-7xl mx-auto hidden md:flex justify-between items-center gap-10 h-full px-4'>
-        <div className="flex items-center gap-2">
-          <img src="/images/logo.png" alt="UniNotesHub Logo" className="h-10 w-auto" />
+        <div className="flex items-center gap-2" onClick={() => navigate('/')}>
+          <img src="/src/assets/logo.png" alt="UniNotesHub Logo" className="h-10 w-auto" />
           <span className="text-dark-blue font-bold text-lg">UniNotesHub</span>
         </div>
         <div className='flex items-center gap-4'>
@@ -118,7 +118,7 @@ const Navbar = () => {
 
       {/* Mobile Navbar */}
       <div className='flex md:hidden items-center justify-between px-4 h-full'>
-        <img src="/images/logo.png" alt="UniNotesHub Logo" className="h-8" />
+        <img src="/src/assets/logo.png" alt="UniNotesHub Logo" className="h-8"  onClick={() => navigate('/')} />
         <MobileNavbar
           user={user}
           isAuthenticated={isAuthenticated}
@@ -148,8 +148,8 @@ const MobileNavbar = ({ user, isAuthenticated, handleLogout, handleUploadRedirec
       </SheetTrigger>
       <SheetContent className='flex flex-col'>
         <SheetHeader className='flex flex-row items-center justify-between mt-2'>
-        <div className="flex items-center gap-2">
-          <img src="/images/logo.png" alt="UniNotesHub Logo" className="h-10 w-auto" />
+        <div className="flex items-center gap-2" onClick={() => navigate('/')} >
+          <img src="/src/assets/logo.png" alt="UniNotesHub Logo" className="h-10 w-auto" />
           <span className="text-dark-blue font-bold text-lg">UniNotesHub</span>
         </div>
           {/* <DarkMode /> */}

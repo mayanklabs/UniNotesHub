@@ -54,7 +54,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="mt-20 px-4 sm:px-6 md:px-14 min-h-screen">
+    <div className="mt-20 px-4 sm:px-6 md:px-14">
       <h1 className="flex justify-center text-xl sm:text-2xl font-bold mb-4">My Uploaded PYQs</h1>
       {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 

@@ -22,7 +22,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/upload" className="hover:text-white">
+                <a href="/uploadpyq" className="hover:text-white">
                   Upload Paper
                 </a>
               </li>
@@ -32,7 +32,7 @@ export function Footer() {
             <h3 className="font-semibold text-lg mb-3">Connect</h3>
             <div className="flex items-center gap-4">
               <a
-                href="https://github.com"
+                href="https://github.com/mayankwebbing/UniNotesHub"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/80 hover:text-white"

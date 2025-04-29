@@ -34,7 +34,7 @@ class PYQ(models.Model):
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    year = models.CharField(max_length=4, choices=YEAR_CHOICES, default='2024')
+    year = models.CharField(max_length=4, choices=YEAR_CHOICES, default=current_year)
     semester = models.CharField(max_length=1, choices=SEMESTER_CHOICES, default='1')
     file = models.FileField(upload_to=pyq_file_path)  # Updated to use custom function
     uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pyqs_uploaded")

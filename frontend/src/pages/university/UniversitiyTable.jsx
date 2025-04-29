@@ -37,7 +37,7 @@ const UniversityTable = memo(({ searchQuery }) => {
           </h2>
         </div>
 
-        <div className="flex flex-wrap justify-center md:justify-start gap-6">
+        <div className="flex flex-wrap justify-center md:justify-center gap-6">
           {loading ? (
             <p className="text-center w-full text-gray-600">Loading universities...</p>
           ) : error ? (
@@ -50,24 +50,22 @@ const UniversityTable = memo(({ searchQuery }) => {
               >
                 <div className="relative">
                   <img
-                    src={uni.image_url || "https://via.placeholder.com/150"}
+                    src={uni.image_url || "https://placehold.co/150"}
                     alt={`${uni.name} logo`}
-                    className="w-full h-36 object-cover"
+                    className="w-full h-36 object-contain"
                     onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/150";
+                      e.target.src = "https://placehold.co/150";
                     }}
                   />
                 </div>
-                <CardContent className="py-3 px-2 flex flex-col justify-center items-center gap-2">
-                  <h3 className="font-semibold text-center text-sm text-gray-700 truncate">
+                <CardContent className="py-3 px-1 flex flex-col justify-center items-center gap-2">
+                  <h3 className="font-semibold text-center text-sm text-gray-700 line-clamp-1">
                     {uni.name}
                   </h3>
-                  <Link to={`/program?universityId=${uni.id}`}>
+                  <Link to={`/program?universityId=${uni.id}`} className="mt-auto">
                     <Button className="text-white bg-gradient-to-br from-purple-600 to-blue-600/70 hover:bg-gradient-to-br hover:from-purple-700 hover:to-blue-700/70 border-none">
                       Visit
                     </Button>
-
-
                   </Link>
                 </CardContent>
               </Card>
