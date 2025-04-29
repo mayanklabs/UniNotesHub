@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { API_URL } from '../../config';
 
 export const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,7 +12,7 @@ export const api = axios.create({
 
 export const getCsrfToken = async () => {
   try {
-    const response = await api.get('/csrf-token/');
+    const response = await api.get('/auth/csrf-token/');
     const csrfToken = response.data.csrfToken;
     api.defaults.headers['X-CSRFToken'] = csrfToken;
     return csrfToken;
@@ -23,7 +24,7 @@ export const getCsrfToken = async () => {
 export const registerUser = async (data) => {
   try {
     await getCsrfToken();
-    const response = await api.post('/register/', {
+    const response = await api.post('/auth/register/', {
       name: data.name,
       email: data.email,
       password: data.password,
@@ -38,7 +39,7 @@ export const registerUser = async (data) => {
 export const loginUser = async (data) => {
   try {
     await getCsrfToken();
-    const response = await api.post('/login/', {
+    const response = await api.post('/auth/login/', {
       email: data.email,
       password: data.password,
     });

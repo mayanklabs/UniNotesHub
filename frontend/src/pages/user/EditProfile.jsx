@@ -16,6 +16,7 @@ import React, { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
 import { updateProfile } from "@/utils/api/editProfileApi";
+import { BASE_URL } from '../../config';
 
 const EditProfile = () => {
   const { user, setAuth } = useAuthStore();
@@ -40,7 +41,7 @@ const EditProfile = () => {
   useEffect(() => {
     setName(user?.name || "");
     setProfilePhotoState(null);
-    setPreviewUrl(user?.profilePhoto ? `http://localhost:8000${user.profilePhoto}` : null);
+    setPreviewUrl(user?.profilePhoto ? `${BASE_URL}${user.profilePhoto}` : null);
   }, [user]);
 
   const onChangeHandler = (e) => {
@@ -75,7 +76,7 @@ const EditProfile = () => {
 
       setName(updatedUser.name);
       setProfilePhotoState(null);
-      setPreviewUrl(updatedUser.profilePhoto ? `http://localhost:8000${updatedUser.profilePhoto}` : null);
+      setPreviewUrl(updatedUser.profilePhoto ? `${BASE_URL}${updatedUser.profilePhoto}` : null);
 
       resetProfileUpdate();
     } catch (err) {

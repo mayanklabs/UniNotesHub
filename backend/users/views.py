@@ -66,7 +66,7 @@ class UserProfileView(APIView):
 
         # Update user profile
         serializer = UserProfileSerializer(user_profile, data=request.data, partial=True)
-        
+
         if serializer.is_valid():
             serializer.save(profile_picture=profile_picture if profile_picture else user_profile.profile_picture)
             return Response({

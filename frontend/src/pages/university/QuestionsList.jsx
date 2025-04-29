@@ -9,10 +9,9 @@ import usePyqStore from '@/store/pyqStore';
 import useRatingStore from '@/store/ratingStore';
 import { useAuthStore } from '@/store/authStore';
 import { fetchCourses } from '@/utils/api/pyqApi';
+import { API_URL } from '../../config';
 
 const FALLBACK_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAAXNSR0IArs4c6QAAAEZJREFUWEft1jEKACAIRVG4/5W9wSgwCgrChdN2sADk9gMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4LcD2Y0AAXwQMSkAAAAASUVORK5CYII=';
-
-const API_URL = 'http://localhost:8000/api/';
 
 const calculateAverageRating = (comments) => {
   if (!comments || !Array.isArray(comments) || comments.length === 0) return 0;
@@ -211,7 +210,7 @@ const QuestionsList = () => {
       console.error('No file URL provided for download');
       return;
     }
-    const absoluteUrl = fileUrl.startsWith('http') ? fileUrl : `${API_URL}${fileUrl}`;
+    const absoluteUrl = fileUrl.startsWith('http') ? fileUrl : `${API_URL}/${fileUrl}`;
     const link = document.createElement('a');
     link.href = absoluteUrl;
     link.download = absoluteUrl.split('/').pop();

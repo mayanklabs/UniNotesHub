@@ -9,7 +9,7 @@ def upload_to(instance, filename):
     """Generates a unique file path for user profile pictures."""
     ext = filename.split('.')[-1]  # Get file extension
     unique_filename = f"{uuid.uuid4()}.{ext}"  # Generate unique filename
-    return os.path.join('profile_pictures', str(instance.user.id), unique_filename)
+    return os.path.join('profile_pics', str(instance.user.id), unique_filename)
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")

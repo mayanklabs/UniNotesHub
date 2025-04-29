@@ -32,7 +32,7 @@ class RegisterView(generics.CreateAPIView):
                 with transaction.atomic():
                     user = serializer.create(serializer.validated_data)
                     user.is_active = False
-                    
+
                     uid = urlsafe_base64_encode(force_bytes(user.pk))
                     token = default_token_generator.make_token(user)
                     verification_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
@@ -44,7 +44,7 @@ class RegisterView(generics.CreateAPIView):
                         [user.email],
                         fail_silently=False,
                     )
-                    
+
                     user.save()
 
                 return Response(
@@ -89,11 +89,12 @@ class LoginView(APIView):
             return Response({"error": {"email": "No user found with this email address."}}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = authenticate(email=email, password=password)
+        print(user)
         if user:
             if not user.is_active:
-                return Response({"error": {"email": "Please verify your email to activate your account."}}, 
+                return Response({"error": {"email": "Please verify your email to activate your account."}},
                                 status=status.HTTP_401_UNAUTHORIZED)
-            
+
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
 
@@ -177,7 +178,7 @@ class ProfileView(APIView):
 
         if not hasattr(user, 'auth_profile'):
             Profile.objects.create(user=user)
-        
+
         if profile_picture:
             user.auth_profile.picture = profile_picture
             user.auth_profile.save()

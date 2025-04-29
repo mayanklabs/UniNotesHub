@@ -27,6 +27,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Separator } from '@radix-ui/react-dropdown-menu';
+import { BASE_URL } from "@/config";
 
 const Navbar = () => {
   const { user, isAuthenticated, token, logout, setError, error } = useAuthStore();
@@ -82,7 +83,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer">
                     <AvatarImage
-                      src={user?.profilePhoto ? `http://localhost:8000${user.profilePhoto}` : "https://github.com/shadcn.png"}
+                      src={user?.profilePhoto ? `${BASE_URL}${user.profilePhoto}` : "https://github.com/shadcn.png"}
                       alt={user?.name || "@user"}
                     />
                     <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
@@ -160,7 +161,7 @@ const MobileNavbar = ({ user, isAuthenticated, handleLogout, handleUploadRedirec
               <div className="flex items-center gap-2">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={user?.profilePhoto ? `http://localhost:8000${user.profilePhoto}` : "https://github.com/shadcn.png"}
+                    src={user?.profilePhoto ? `${BASE_URL}${user.profilePhoto}` : "https://github.com/shadcn.png"}
                     alt={user?.name || "@user"}
                   />
                   <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>

@@ -1,7 +1,7 @@
 import axios from "axios";
+import { API_URL } from '../../config';
 
-const API_URL = "http://localhost:8000/api";
-const tokenRefreshEndpoint = `${API_URL}/token/refresh/`;
+const tokenRefreshEndpoint = `${API_URL}/auth/token/refresh/`;
 
 // Function to get tokens from local storage
 const getTokens = () => {
@@ -50,7 +50,7 @@ export const updateProfile = async (profileData) => {
     let { access } = getTokens();
 
     try {
-        const response = await axios.put(`${API_URL}/users/profile/`, profileData, {
+        const response = await axios.put(`${API_URL}/users/users/profile/`, profileData, {
             headers: { Authorization: `Bearer ${access}` },
         });
         return response.data;
@@ -60,7 +60,7 @@ export const updateProfile = async (profileData) => {
             try {
                 access = await refreshAccessToken();
                 // Retry the request with new access token
-                const response = await axios.put(`${API_URL}/users/profile/`, profileData, {
+                const response = await axios.put(`${API_URL}/users/users/profile/`, profileData, {
                     headers: { Authorization: `Bearer ${access}` },
                 });
                 return response.data;

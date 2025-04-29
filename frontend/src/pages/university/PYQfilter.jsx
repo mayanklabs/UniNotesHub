@@ -10,8 +10,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { fetchPrograms, fetchBranches, fetchCourses } from "@/utils/api/pyqApi";
-
-const API_URL = "http://localhost:8000/api/";
+import { API_URL } from '../../config';
 
 const filterSchema = z.object({
   university: z.string().min(1, "Please select a university"),
@@ -46,7 +45,7 @@ const PYQFilter = ({ onFilterComplete, onUniversityFilter }) => {
   useEffect(() => {
     const loadUniversities = async () => {
       try {
-        const response = await axios.get(`${API_URL}universities/`);
+        const response = await axios.get(`${API_URL}/universities/universities/`);
         setUniversities(response.data);
       } catch (error) {
         setError(error.message || "Failed to fetch universities");

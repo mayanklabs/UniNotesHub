@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 import os
 from django.utils import timezone
 from universities.models import University, Program, Branch, Course
+from datetime import datetime
 
 User = get_user_model()
 
@@ -26,7 +27,8 @@ class PYQ(models.Model):
         ('8', 'Semester 8'),
     ]
 
-    YEAR_CHOICES = [(str(year), str(year)) for year in range(2000, 2031)]
+    current_year = datetime.now().year
+    YEAR_CHOICES = [(str(year), str(year)) for year in range(2000, current_year + 1)]
 
     university = models.ForeignKey(University, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
@@ -53,3 +55,7 @@ class PYQRating(models.Model):
 
     def __str__(self):
         return f"{self.user.username} rated {self.pyq.course.name} ({self.rating}⭐)"
+
+    class Meta:
+        unique_together = [['user', 'pyq']]
+        ordering = ['-created_at']

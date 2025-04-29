@@ -11,7 +11,7 @@ from universities.models import University, Program, Branch, Course
 from .serializers import (
     PYQSerializer, PYQRatingSerializer
 )
-from universities.serializers import ( 
+from universities.serializers import (
     UniversitySerializer,
     ProgramSerializer,
     BranchSerializer,

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { API_URL } from "@/config";
 
 // Standalone refreshToken function
 export const refreshAuthToken = async () => {
@@ -9,7 +10,7 @@ export const refreshAuthToken = async () => {
     return null;
   }
   try {
-    const response = await axios.post('http://localhost:8000/api/token/refresh/', { refresh });
+    const response = await axios.post(`${API_URL}/auth/token/refresh/`, { refresh });
     const newToken = response.data.access;
     localStorage.setItem('token', newToken);
     useAuthStore.setState({ token: newToken, isAuthenticated: true });
