@@ -1,6 +1,9 @@
 import { GitGraphIcon } from "lucide-react"
+import { useNavigate } from 'react-router-dom';
 
 export function Footer() {
+  const navigate = useNavigate();
+
   return (
     <footer className="w-full bg-gradient-to-br from-purple-600 to-blue-600/70 text-white border-t-0">
       <div className="container mx-auto px-4 py-6">
@@ -22,7 +25,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/uploadpyq" className="hover:text-white">
+                <a onClick={() => navigate('/uploadpyq')} className="hover:text-white">
                   Upload Paper
                 </a>
               </li>

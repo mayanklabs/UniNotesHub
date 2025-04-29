@@ -1,8 +1,6 @@
 // src/App.jsx
 import './App.css';
 import MainLyout from './layout/MainLyout';
-import { RouterProvider, Navigate } from 'react-router';
-import { createBrowserRouter } from 'react-router-dom';
 import Login from './pages/Login';
 import Hero from './pages/Hero';
 import UniversityTable from './pages/university/UniversitiyTable'; // Typo fixed in import
@@ -15,71 +13,15 @@ import Dashboard from './pages/user/Dashboard';
 import EditProfile from './pages/user/EditProfile';
 import PasswordResetConfirm from './pages/PasswordResetConfirm';
 import ForgotPassword from './pages/ForgotPassword';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import PYQForm from './pages/user/PYQForm';
 import { Toaster } from "sonner";
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
-
-const appRouter = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainLyout />,
-    children: [
-      {
-        path: "/",
-        element: <Hero />,
-      },
-      {
-        path: "/universities",
-        element: <UniversityTable />,
-      },
-      {
-        path: "/program",
-        element: <ProgramName />,
-      },
-      {
-        path: "/branch",
-        element: <BranchName />,
-      },
-      {
-        path: "/course",
-        element: <CourseName />,
-      },
-      {
-        path: "/questions",
-        element: <QuestionsList />,
-      },
-      {
-        path: "/editProfile",
-        element: <ProtectedRoute><EditProfile /></ProtectedRoute>,
-      },
-      {
-        path: "/uploadpyq",
-        element: <ProtectedRoute><PYQForm /></ProtectedRoute>,
-      },
-      {
-        path: "/dashboard",
-        element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
-      },
-    ],
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/forgot-password",
-    element: <ForgotPassword />,
-  },
-  {
-    path: "/password/reset/confirm/:uidb64/:token",
-    element: <PasswordResetConfirm />,
-  },
-]);
 
 function App() {
   const { setAuth } = useAuthStore();
@@ -96,7 +38,24 @@ function App() {
 
   return (
     <main>
-      <RouterProvider router={appRouter} />
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<MainLyout />}>
+            <Route index element={<Hero />} />
+            <Route path="universities" element={<UniversityTable />} />
+            <Route path="program" element={<ProgramName />} />
+            <Route path="branch" element={<BranchName />} />
+            <Route path="course" element={<CourseName />} />
+            <Route path="questions" element={<QuestionsList />} />
+            <Route path="editProfile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+            <Route path="uploadpyq" element={<ProtectedRoute><PYQForm /></ProtectedRoute>} />
+            <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/password/reset/confirm/:uidb64/:token" element={<PasswordResetConfirm />} />
+        </Routes>
+      </HashRouter>
       <Toaster richColors />
     </main>
   );
